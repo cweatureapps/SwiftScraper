@@ -10,10 +10,10 @@ import Foundation
 
 /// Step that loads a new page.
 public class OpenPageStep: Step, NavigableStep {
-    var path: String
+    private var path: String
     var navigationAssertionFunctionName: String?
 
-    init(path: String, navigationAssertionFunctionName: String? = nil) {
+    public init(path: String, navigationAssertionFunctionName: String? = nil) {
         self.path = path
         self.navigationAssertionFunctionName = navigationAssertionFunctionName
     }

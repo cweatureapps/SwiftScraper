@@ -22,7 +22,7 @@ public class StepRunner {
     private var steps: [Step]
     private var index = 0
 
-    init(
+    public init(
         moduleName: String,
         customUserAgent: String? = nil,
         steps: [Step]) {

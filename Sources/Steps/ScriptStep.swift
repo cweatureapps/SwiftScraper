@@ -10,10 +10,10 @@ import Foundation
 
 /// Step that runs some script which will return a result directly from the function.
 public class ScriptStep: Step {
-    var functionName: String
-    var paramClosure: () -> JSON?
-    var handler: ScriptResponseCompletion
-    init(
+    private var functionName: String
+    private var paramClosure: () -> JSON?
+    private var handler: ScriptResponseCompletion
+    public init(
         functionName: String,
         param paramClosure: (@escaping @autoclosure () -> JSON?) = nil,
         handler: @escaping ScriptResponseCompletion) {

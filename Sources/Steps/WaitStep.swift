@@ -16,7 +16,7 @@ public class WaitStep: Step {
     /// Initializer.
     ///
     /// - parameter waitTimeInSeconds: The number of seconds to wait before proceeding to the next step
-    init(waitTimeInSeconds: TimeInterval) {
+    public init(waitTimeInSeconds: TimeInterval) {
         self.waitTimeInSeconds = waitTimeInSeconds
     }
 

@@ -13,7 +13,7 @@ public class PageChangeStep: Step, NavigableStep {
     var functionName: String
     var paramClosure: () -> JSON?
     var navigationAssertionFunctionName: String?
-    init(
+    public init(
         functionName: String,
         param paramClosure: (@escaping @autoclosure () -> JSON?) = nil,
         navigationAssertionFunctionName: String? = nil) {
