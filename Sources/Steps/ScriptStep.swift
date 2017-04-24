@@ -11,19 +11,19 @@ import Foundation
 /// Step that runs some script which will return a result directly from the function.
 public class ScriptStep: Step {
     private var functionName: String
-    private var paramClosure: () -> JSON?
+    private var paramsClosure: () -> [Any]
     private var handler: ScriptResponseCompletion
     public init(
         functionName: String,
-        param paramClosure: (@escaping @autoclosure () -> JSON?) = nil,
+        params paramsClosure: (@escaping @autoclosure () -> [Any]) = [],
         handler: @escaping ScriptResponseCompletion) {
         self.functionName = functionName
-        self.paramClosure = paramClosure
+        self.paramsClosure = paramsClosure
         self.handler = handler
     }
 
     public func run(with browser: Browser, completion: @escaping StepCompletion) {
-        browser.runScript(functionName: functionName, param: paramClosure()) { [weak self] result in
+        browser.runScript(functionName: functionName, params: paramsClosure()) { [weak self] result in
             guard let this = self else { return }
             switch result {
             case .failure:

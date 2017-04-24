@@ -32,15 +32,15 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     ///
     /// - parameter moduleName: The name of the JavaScript module.
     /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+)
-    init(moduleName: String, customUserAgent: String? = nil) {
+    init(moduleName: String, customUserAgent: String? = nil, scriptBundle: Bundle = Bundle.main) {
         self.moduleName = moduleName
         super.init()
-        setupWebView(moduleName: moduleName, customUserAgent: customUserAgent)
+        setupWebView(moduleName: moduleName, customUserAgent: customUserAgent, scriptBundle: scriptBundle)
     }
 
-    private func setupWebView(moduleName: String, customUserAgent: String?) {
+    private func setupWebView(moduleName: String, customUserAgent: String?, scriptBundle: Bundle) {
 
-        let scriptURL = Bundle.main.path(forResource: moduleName, ofType: "js")
+        let scriptURL = scriptBundle.path(forResource: moduleName, ofType: "js")
         let scriptContent = try! String(contentsOfFile: scriptURL!)  // swiftlint:disable:this force_try
         let script = WKUserScript(source: scriptContent, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
 
@@ -121,8 +121,8 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     }
 
     // Run some javascript with error handling and print logging
-    func runScript(functionName: String, param: JSON? = nil, completion: @escaping ScriptResponseResultCompletion) {
-        guard let script = generateScript(functionName: functionName, param: param) else {
+    func runScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCompletion) {
+        guard let script = JavaScriptGenerator.generateScript(moduleName: moduleName, functionName: functionName, params: params) else {
             completion(.failure(BrowserError.parameterSerialization))
             return
         }
@@ -145,9 +145,9 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         }
     }
 
-    func runPageChangeScript(functionName: String, param: JSON? = nil, completion: @escaping NavigationCompletion) {
+    func runPageChangeScript(functionName: String, params: [Any] = [], completion: @escaping NavigationCompletion) {
         self.navigationCompletion = completion
-        runScript(functionName: functionName, param: param) { result in
+        runScript(functionName: functionName, params: params) { result in
             if case .failure = result {
                 completion(false)
                 self.navigationCompletion = nil
@@ -155,23 +155,13 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         }
     }
 
-    func runAsyncScript(functionName: String, param: JSON? = nil, completion: @escaping ScriptResponseResultCompletion) {
+    func runAsyncScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCompletion) {
         self.asyncScriptCompletion = completion
-        runScript(functionName: functionName, param: param) { result in
+        runScript(functionName: functionName, params: params) { result in
             if case .failure = result {
                 completion(result)
                 self.asyncScriptCompletion = nil
             }
         }
-    }
-
-    private func generateScript(functionName: String, param: JSON?) -> String? {
-        guard let param = param else {
-            return "\(moduleName).\(functionName)()"
-        }
-        guard JSONSerialization.isValidJSONObject(param),
-            let prettyJsonData = try? JSONSerialization.data(withJSONObject: param, options: []),
-            let jsonString = NSString(data: prettyJsonData, encoding: String.Encoding.utf8.rawValue) as? String else { return nil }
-        return "\(moduleName).\(functionName)(\(jsonString))"
     }
 }

@@ -9,12 +9,31 @@
 import Foundation
 import Observable
 
+// MARK: - StepRunnerState
+
 public enum StepRunnerState {
     case notStarted
     case inProgress(index: Int)
     case success
     case failure
 }
+
+public func == (lhs: StepRunnerState, rhs: StepRunnerState) -> Bool {
+    switch (lhs, rhs) {
+    case (.notStarted, .notStarted): return true
+    case (.success, .success): return true
+    case (.failure, .failure): return true
+    case (.inProgress(let lhsIndex), .inProgress(let rhsIndex)):
+        return lhsIndex == rhsIndex
+    default: return false
+    }
+}
+
+public func != (lhs: StepRunnerState, rhs: StepRunnerState) -> Bool {
+    return !(lhs == rhs)
+}
+
+// MARK: - StepRunner
 
 public class StepRunner {
     public var state: Observable<StepRunnerState> = Observable(.notStarted)
@@ -25,8 +44,9 @@ public class StepRunner {
     public init(
         moduleName: String,
         customUserAgent: String? = nil,
+        scriptBundle: Bundle = Bundle.main,
         steps: [Step]) {
-        browser = Browser(moduleName: moduleName, customUserAgent: customUserAgent)
+        browser = Browser(moduleName: moduleName, customUserAgent: customUserAgent, scriptBundle: scriptBundle)
         self.steps = steps
     }
 

@@ -11,19 +11,19 @@ import Foundation
 /// Step that runs some script, which will result in a new page being loaded.
 public class PageChangeStep: Step, NavigableStep {
     var functionName: String
-    var paramClosure: () -> JSON?
+    var paramsClosure: () -> [Any]
     var navigationAssertionFunctionName: String?
     public init(
         functionName: String,
-        param paramClosure: (@escaping @autoclosure () -> JSON?) = nil,
+        params paramsClosure: (@escaping @autoclosure () -> [Any]) = [],
         navigationAssertionFunctionName: String? = nil) {
         self.functionName = functionName
-        self.paramClosure = paramClosure
+        self.paramsClosure = paramsClosure
         self.navigationAssertionFunctionName = navigationAssertionFunctionName
     }
 
     public func run(with browser: Browser, completion: @escaping StepCompletion) {
-        browser.runPageChangeScript(functionName: functionName, param: paramClosure()) { [weak self] success in
+        browser.runPageChangeScript(functionName: functionName, params: paramsClosure()) { [weak self] success in
             guard let this = self else { return }
             guard success else {
                 completion(false)

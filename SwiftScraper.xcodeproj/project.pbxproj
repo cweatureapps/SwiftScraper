@@ -10,8 +10,6 @@
 		5B4660BE1EA87A6A005B921F /* SwiftScraper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B4660B41EA87A6A005B921F /* SwiftScraper.framework */; };
 		5B4660C31EA87A6A005B921F /* SwiftScraperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4660C21EA87A6A005B921F /* SwiftScraperTests.swift */; };
 		5B4660C51EA87A6A005B921F /* SwiftScraper.h in Headers */ = {isa = PBXBuildFile; fileRef = 5B4660B71EA87A6A005B921F /* SwiftScraper.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6417A7A843E5211BA7365161 /* Pods_SwiftScraperTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC07E9FA0D7A637FB15E5C6A /* Pods_SwiftScraperTests.framework */; };
-		BAA5A332A3725AAAB96C8FF0 /* Pods_SwiftScraper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28010FCF547BEFA8CDA65CC3 /* Pods_SwiftScraper.framework */; };
 		5BC8791F1EAA1AD700230CEA /* Browser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC8791E1EAA1AD700230CEA /* Browser.swift */; };
 		5BC879211EAA1B2D00230CEA /* TypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC879201EAA1B2D00230CEA /* TypeAliases.swift */; };
 		5BC879231EAA1B5800230CEA /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC879221EAA1B5800230CEA /* Result.swift */; };
@@ -24,6 +22,12 @@
 		5BC879321EAA213800230CEA /* AsyncScriptStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC879311EAA213800230CEA /* AsyncScriptStep.swift */; };
 		5BC879341EAA21D700230CEA /* WaitStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC879331EAA21D700230CEA /* WaitStep.swift */; };
 		5BC879361EAA224C00230CEA /* StepRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC879351EAA224C00230CEA /* StepRunner.swift */; };
+		5BEF8AC81EAE01CD003E2945 /* page1.html in Resources */ = {isa = PBXBuildFile; fileRef = 5BEF8AC71EAE01CD003E2945 /* page1.html */; };
+		5BEF8ACA1EAE069F003E2945 /* SwiftScraperTests.js in Resources */ = {isa = PBXBuildFile; fileRef = 5BEF8AC91EAE069F003E2945 /* SwiftScraperTests.js */; };
+		5BEF8ACC1EAE122B003E2945 /* JavaScriptGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BEF8ACB1EAE122B003E2945 /* JavaScriptGeneratorTests.swift */; };
+		5BEF8ACF1EAE1A45003E2945 /* JavaScriptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BEF8ACD1EAE1982003E2945 /* JavaScriptGenerator.swift */; };
+		6417A7A843E5211BA7365161 /* Pods_SwiftScraperTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC07E9FA0D7A637FB15E5C6A /* Pods_SwiftScraperTests.framework */; };
+		BAA5A332A3725AAAB96C8FF0 /* Pods_SwiftScraper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28010FCF547BEFA8CDA65CC3 /* Pods_SwiftScraper.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,9 +50,6 @@
 		5B4660BD1EA87A6A005B921F /* SwiftScraperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftScraperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B4660C21EA87A6A005B921F /* SwiftScraperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftScraperTests.swift; sourceTree = "<group>"; };
 		5B4660C41EA87A6A005B921F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B7BAD8EE4A3E8AA4F5228DA5 /* Pods-SwiftScraper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftScraper.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftScraper/Pods-SwiftScraper.debug.xcconfig"; sourceTree = "<group>"; };
-		BBD4C3740353A13CE16A8369 /* Pods-SwiftScraperTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftScraperTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftScraperTests/Pods-SwiftScraperTests.release.xcconfig"; sourceTree = "<group>"; };
-		DC07E9FA0D7A637FB15E5C6A /* Pods_SwiftScraperTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftScraperTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BC8791E1EAA1AD700230CEA /* Browser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Browser.swift; sourceTree = "<group>"; };
 		5BC879201EAA1B2D00230CEA /* TypeAliases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeAliases.swift; sourceTree = "<group>"; };
 		5BC879221EAA1B5800230CEA /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
@@ -61,6 +62,13 @@
 		5BC879311EAA213800230CEA /* AsyncScriptStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncScriptStep.swift; sourceTree = "<group>"; };
 		5BC879331EAA21D700230CEA /* WaitStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaitStep.swift; sourceTree = "<group>"; };
 		5BC879351EAA224C00230CEA /* StepRunner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StepRunner.swift; sourceTree = "<group>"; };
+		5BEF8AC71EAE01CD003E2945 /* page1.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = page1.html; sourceTree = "<group>"; };
+		5BEF8AC91EAE069F003E2945 /* SwiftScraperTests.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = SwiftScraperTests.js; sourceTree = "<group>"; };
+		5BEF8ACB1EAE122B003E2945 /* JavaScriptGeneratorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JavaScriptGeneratorTests.swift; sourceTree = "<group>"; };
+		5BEF8ACD1EAE1982003E2945 /* JavaScriptGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JavaScriptGenerator.swift; sourceTree = "<group>"; };
+		B7BAD8EE4A3E8AA4F5228DA5 /* Pods-SwiftScraper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftScraper.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftScraper/Pods-SwiftScraper.debug.xcconfig"; sourceTree = "<group>"; };
+		BBD4C3740353A13CE16A8369 /* Pods-SwiftScraperTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftScraperTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftScraperTests/Pods-SwiftScraperTests.release.xcconfig"; sourceTree = "<group>"; };
+		DC07E9FA0D7A637FB15E5C6A /* Pods_SwiftScraperTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftScraperTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +119,7 @@
 				5BC8791E1EAA1AD700230CEA /* Browser.swift */,
 				5BC879241EAA1B7600230CEA /* BrowserError.swift */,
 				5B4660B81EA87A6A005B921F /* Info.plist */,
+				5BEF8ACD1EAE1982003E2945 /* JavaScriptGenerator.swift */,
 				5BC879221EAA1B5800230CEA /* Result.swift */,
 				5BC879351EAA224C00230CEA /* StepRunner.swift */,
 				5B4660B71EA87A6A005B921F /* SwiftScraper.h */,
@@ -122,10 +131,35 @@
 		5B4660C11EA87A6A005B921F /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				5B4660C21EA87A6A005B921F /* SwiftScraperTests.swift */,
 				5B4660C41EA87A6A005B921F /* Info.plist */,
+				5BEF8ACB1EAE122B003E2945 /* JavaScriptGeneratorTests.swift */,
+				5BEF8AC61EAE01B4003E2945 /* Pages */,
+				5BEF8AC91EAE069F003E2945 /* SwiftScraperTests.js */,
+				5B4660C21EA87A6A005B921F /* SwiftScraperTests.swift */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		5BC879261EAA1FD100230CEA /* Steps */ = {
+			isa = PBXGroup;
+			children = (
+				5BC879311EAA213800230CEA /* AsyncScriptStep.swift */,
+				5BC879291EAA1FFD00230CEA /* NavigableStep.swift */,
+				5BC8792B1EAA201E00230CEA /* OpenPageStep.swift */,
+				5BC8792D1EAA203E00230CEA /* PageChangeStep.swift */,
+				5BC8792F1EAA211B00230CEA /* ScriptStep.swift */,
+				5BC879271EAA1FE500230CEA /* Step.swift */,
+				5BC879331EAA21D700230CEA /* WaitStep.swift */,
+			);
+			path = Steps;
+			sourceTree = "<group>";
+		};
+		5BEF8AC61EAE01B4003E2945 /* Pages */ = {
+			isa = PBXGroup;
+			children = (
+				5BEF8AC71EAE01CD003E2945 /* page1.html */,
+			);
+			path = Pages;
 			sourceTree = "<group>";
 		};
 		92685D469D3B000D8A2BEE2B /* Frameworks */ = {
@@ -146,20 +180,6 @@
 				BBD4C3740353A13CE16A8369 /* Pods-SwiftScraperTests.release.xcconfig */,
 			);
 			name = Pods;
-			sourceTree = "<group>";
-		};
-		5BC879261EAA1FD100230CEA /* Steps */ = {
-			isa = PBXGroup;
-			children = (
-				5BC879311EAA213800230CEA /* AsyncScriptStep.swift */,
-				5BC879291EAA1FFD00230CEA /* NavigableStep.swift */,
-				5BC8792B1EAA201E00230CEA /* OpenPageStep.swift */,
-				5BC8792D1EAA203E00230CEA /* PageChangeStep.swift */,
-				5BC8792F1EAA211B00230CEA /* ScriptStep.swift */,
-				5BC879271EAA1FE500230CEA /* Step.swift */,
-				5BC879331EAA21D700230CEA /* WaitStep.swift */,
-			);
-			path = Steps;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -268,6 +288,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5BEF8AC81EAE01CD003E2945 /* page1.html in Resources */,
+				5BEF8ACA1EAE069F003E2945 /* SwiftScraperTests.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,6 +382,7 @@
 				5BC879361EAA224C00230CEA /* StepRunner.swift in Sources */,
 				5BC879341EAA21D700230CEA /* WaitStep.swift in Sources */,
 				5BC8792A1EAA1FFD00230CEA /* NavigableStep.swift in Sources */,
+				5BEF8ACF1EAE1A45003E2945 /* JavaScriptGenerator.swift in Sources */,
 				5BC8792C1EAA201E00230CEA /* OpenPageStep.swift in Sources */,
 				5BC8791F1EAA1AD700230CEA /* Browser.swift in Sources */,
 				5BC879281EAA1FE500230CEA /* Step.swift in Sources */,
@@ -375,6 +398,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5BEF8ACC1EAE122B003E2945 /* JavaScriptGeneratorTests.swift in Sources */,
 				5B4660C31EA87A6A005B921F /* SwiftScraperTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
