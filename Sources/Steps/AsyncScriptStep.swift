@@ -9,31 +9,24 @@
 import Foundation
 
 /// Step that runs some script which will return a result asynchronously via `window.webkit.messageHandlers.responseHandler.postMessage()`.
-public class AsyncScriptStep: Step {
-    private var functionName: String
-    private var paramClosure: () -> [Any]
-    private var handler: ScriptResponseCompletion
-    public init(
+public class AsyncScriptStep: ScriptStep {
+
+    // Manully override due to Swift unsupported warning:
+    // "Synthesizing a variadic inherited initiaizer for subclass is unsupported"
+    override public init(
         functionName: String,
-        param paramClosure: (@escaping @autoclosure () -> [Any]) = [],
-        handler: @escaping ScriptResponseCompletion) {
-        self.functionName = functionName
-        self.paramClosure = paramClosure
-        self.handler = handler
+        params: Any...,
+        paramsKeys: [String] = [],
+        handler: @escaping (Any?, inout JSON) -> Void) {
+        super.init(
+            functionName: functionName,
+            params: params,
+            paramsKeys: paramsKeys,
+            handler: handler)
     }
 
-    public func run(with browser: Browser, completion: @escaping StepCompletion) {
-        browser.runAsyncScript(functionName: functionName, params: paramClosure()) { [weak self] result in
-            guard let this = self else { return }
-            switch result {
-            case .failure:
-                completion(false)
-            case .success(let response):
-                this.handler(response)
-                completion(true)
-            }
-        }
+    override func runScript(browser: Browser, functionName: String, params: [Any], completion: @escaping ScriptResponseResultCompletion) {
+        browser.runAsyncScript(functionName: functionName, params: params, completion: completion)
     }
-    
 }
 

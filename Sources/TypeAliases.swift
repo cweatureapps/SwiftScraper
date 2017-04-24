@@ -10,7 +10,9 @@ import Foundation
 
 public typealias JSON = [String: Any]
 
-public typealias StepCompletion = (Bool) -> Void
+public typealias StepCompletion = (Result<JSON, StepError>) -> Void
 public typealias NavigationCompletion = (Bool) -> Void
 public typealias ScriptResponseCompletion = (Any?) -> Void
 public typealias ScriptResponseResultCompletion = (Result<Any?, BrowserError>) -> Void
+
+public struct StepError: Error {}

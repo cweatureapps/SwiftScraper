@@ -38,6 +38,7 @@ public func != (lhs: StepRunnerState, rhs: StepRunnerState) -> Bool {
 public class StepRunner {
     public var state: Observable<StepRunnerState> = Observable(.notStarted)
     public let browser: Browser
+    public private(set) var model: JSON = [:]
     private var steps: [Step]
     private var index = 0
 
@@ -56,16 +57,18 @@ public class StepRunner {
             return
         }
         state ^= .inProgress(index: index)
-        firstStep.run(with: browser) { [weak self] success in
+        firstStep.run(with: browser, model: model) { [weak self] result in
             guard let this = self else { return }
-            if success {
+            switch result {
+            case .success(let model):
                 _ = this.steps.removeFirst()
                 this.index += 1
+                this.model = model
                 this.run()
-            } else {
+            case .failure:
                 this.state ^= .failure
             }
         }
     }
-    
+
 }

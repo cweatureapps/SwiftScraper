@@ -122,7 +122,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     // Run some javascript with error handling and print logging
     func runScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCompletion) {
-        guard let script = JavaScriptGenerator.generateScript(moduleName: moduleName, functionName: functionName, params: params) else {
+        guard let script = try? JavaScriptGenerator.generateScript(moduleName: moduleName, functionName: functionName, params: params) else {
             completion(.failure(BrowserError.parameterSerialization))
             return
         }

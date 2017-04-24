@@ -10,26 +10,35 @@ import Foundation
 
 /// Step that runs some script, which will result in a new page being loaded.
 public class PageChangeStep: Step, NavigableStep {
-    var functionName: String
-    var paramsClosure: () -> [Any]
+    private var functionName: String
+    private var params: [Any]
+    private var paramsKeys: [String]
     var navigationAssertionFunctionName: String?
     public init(
         functionName: String,
-        params paramsClosure: (@escaping @autoclosure () -> [Any]) = [],
+        params: Any...,
+        paramsKeys: [String] = [],
         navigationAssertionFunctionName: String? = nil) {
         self.functionName = functionName
-        self.paramsClosure = paramsClosure
+        self.params = params
+        self.paramsKeys = paramsKeys
         self.navigationAssertionFunctionName = navigationAssertionFunctionName
     }
 
-    public func run(with browser: Browser, completion: @escaping StepCompletion) {
-        browser.runPageChangeScript(functionName: functionName, params: paramsClosure()) { [weak self] success in
+    public func run(with browser: Browser, model: JSON, completion: @escaping StepCompletion) {
+        let params: [Any]
+        if paramsKeys.isEmpty {
+            params = self.params
+        } else {
+            params = paramsKeys.map { model[$0] ?? NSNull() }
+        }
+        browser.runPageChangeScript(functionName: functionName, params: params) { [weak self] success in
             guard let this = self else { return }
             guard success else {
-                completion(false)
+                completion(.failure(StepError()))
                 return
             }
-            this.assertNavigation(with: browser, completion: completion)
+            this.assertNavigation(with: browser, model: model, completion: completion)
         }
     }
 }

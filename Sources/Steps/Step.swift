@@ -9,5 +9,5 @@
 import Foundation
 
 public protocol Step {
-    func run(with webViewEngine: Browser, completion: @escaping StepCompletion)
+    func run(with webViewEngine: Browser, model: JSON, completion: @escaping StepCompletion)
 }

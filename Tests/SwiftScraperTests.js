@@ -41,6 +41,10 @@ var SwiftScraperTests = (function() {
         };
     }
 
+    function testParamsFromModel(text, number, nullVariable, obj) {
+        return text === "hello world" && number === 987.6 && nullVariable === null && obj["foo"] === "bar"
+    }
+
     return {
         assertPage1Title: assertPage1Title,
         getInnerText: getInnerText,
@@ -50,6 +54,7 @@ var SwiftScraperTests = (function() {
         getNumber: getNumber,
         getJsonObject: getJsonObject,
         getJsonArray: getJsonArray,
-        multiArg: multiArg
+        multiArg: multiArg,
+        testParamsFromModel: testParamsFromModel
     };
 })();

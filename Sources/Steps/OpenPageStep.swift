@@ -18,14 +18,14 @@ public class OpenPageStep: Step, NavigableStep {
         self.navigationAssertionFunctionName = navigationAssertionFunctionName
     }
 
-    public func run(with browser: Browser, completion: @escaping StepCompletion) {
+    public func run(with browser: Browser, model: JSON, completion: @escaping StepCompletion) {
         browser.load(path: path) { [weak self] success in
             guard let this = self else { return }
             guard success else {
-                completion(false)
+                completion(.failure(StepError()))
                 return
             }
-            this.assertNavigation(with: browser, completion: completion)
+            this.assertNavigation(with: browser, model: model, completion: completion)
         }
     }
 }

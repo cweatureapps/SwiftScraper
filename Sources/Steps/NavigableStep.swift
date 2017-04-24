@@ -16,17 +16,17 @@ protocol NavigableStep: Step {
 }
 
 extension NavigableStep {
-    func assertNavigation(with browser: Browser, completion: @escaping StepCompletion) {
+    func assertNavigation(with browser: Browser, model: JSON, completion: @escaping StepCompletion) {
         guard let navigationAssertionFunctionName = self.navigationAssertionFunctionName else {
-            completion(true)
+            completion(.success(model))
             return
         }
         browser.runScript(functionName: navigationAssertionFunctionName) { result in
             switch result {
             case .success(let ok as Bool) where ok:
-                completion(true)
+                completion(.success(model))
             default:
-                completion(false)
+                completion(.failure(StepError()))
             }
         }
     }
