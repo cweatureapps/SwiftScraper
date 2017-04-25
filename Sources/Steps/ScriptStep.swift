@@ -11,7 +11,7 @@ import Foundation
 /// Step that runs some script which will return a result directly from the function.
 public class ScriptStep: Step {
     private var functionName: String
-    private var params: [Any]
+    var params: [Any]
     private var paramsKeys: [String]
     private var handler: (Any?, inout JSON) -> Void
     public init(

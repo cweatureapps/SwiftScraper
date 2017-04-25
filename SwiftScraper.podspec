@@ -10,7 +10,7 @@ Framework that makes it easy to integrate and orchestrate screen scraping with y
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'cweatureapps' => 'cweatureapps@gmail.com' }
   s.source           = { :git => 'https://github.com/cweatureapps/SwiftScraper.git', :tag => s.version.to_s }
-
+  s.resource_bundles = { "SwiftScraper" => ["Resources/**/*.{js}"] }
   s.ios.deployment_target = '8.0'
   s.source_files = 'Sources/**/*.{h,m,swift}'
   s.frameworks = 'UIKit', 'WebKit'

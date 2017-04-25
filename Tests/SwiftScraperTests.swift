@@ -9,10 +9,11 @@
 import XCTest
 @testable import SwiftScraper
 
+/// End-to-end tests for the `StepRunner`, which is the engine that runs the step pipeline.
 class SwiftScraperTests: XCTestCase {
 
     func waitForExpectations() {
-        waitForExpectations(timeout: 5) { error in
+        waitForExpectations(timeout: 30) { error in
             guard let error = error else { return }
             XCTFail(error.localizedDescription)
         }
@@ -311,6 +312,104 @@ class SwiftScraperTests: XCTestCase {
         }
 
         let stepRunner = makeStepRunner(steps: [step1, step2, step3, step4])
+        stepRunner.run()
+        
+        waitForExpectations()
+    }
+
+    // MARK: - AsyncScriptStep
+
+    func testAsyncScriptStep() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            navigationAssertionFunctionName: "assertPage1Title")
+
+        let step2 = AsyncScriptStep(functionName: "getStringAsync") { response, _ in
+            XCTAssertEqual(response as? String, "thanks for waiting...hello!")
+            exp.fulfill()
+        }
+
+        let stepRunner = makeStepRunner(steps: [step1, step2])
+        var stepIndex = 0
+        stepRunner.state.afterChange.add { change in
+            switch stepIndex {
+            case 0:
+                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be inProgress(0)")
+            case 1:
+                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be inProgress(1)")
+            case 2:
+                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+            default:
+                break
+            }
+            stepIndex += 1
+        }
+        stepRunner.run()
+
+        waitForExpectations()
+    }
+
+    func testAsyncScriptStepWithMultipleArgumentsCanBeEchoedBack() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            navigationAssertionFunctionName: "assertPage1Title")
+
+        let step2 = AsyncScriptStep(
+            functionName: "multiArgAsync",
+            params: 7.89, true, "lorem", [1,2,3], ["foo": "bar"],
+            handler: { response, _ in
+                let json = response as! JSON
+                XCTAssertEqual(json["number"] as! Double, 7.89)
+                XCTAssertTrue(json["bool"] as! Bool)
+                XCTAssertEqual(json["text"] as! String, "lorem")
+                XCTAssertEqual(json["numArr"] as! [Int], [1,2,3])
+                XCTAssertEqual((json["obj"] as! JSON)["foo"] as! String, "bar")
+                exp.fulfill()
+        })
+
+        let stepRunner = makeStepRunner(steps: [step1, step2])
+        stepRunner.run()
+
+        waitForExpectations()
+    }
+
+    func testAsyncScriptStepTakesParamsFromModel() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            navigationAssertionFunctionName: "assertPage1Title")
+
+        let step2 = ScriptStep(functionName: "getString") { response, model in
+            XCTAssertEqual(response as? String, "hello world")
+
+            // model is updated here
+            model["number"] = 987.6
+            model["bool"] = true
+            model["text"] = "lorem"
+            model["numArr"] = [1,2,3]
+            model["object"] = ["foo": "bar"]
+        }
+
+        // parameters for step 3 comes from the model
+        let step3 = AsyncScriptStep(
+            functionName: "multiArgAsync",
+            paramsKeys: ["number", "bool", "text", "numArr", "object"],
+            handler: { response, _ in
+                let json = response as! JSON
+                XCTAssertEqual(json["number"] as! Double, 987.6)
+                XCTAssertTrue(json["bool"] as! Bool)
+                XCTAssertEqual(json["text"] as! String, "lorem")
+                XCTAssertEqual(json["numArr"] as! [Int], [1,2,3])
+                XCTAssertEqual((json["obj"] as! JSON)["foo"] as! String, "bar")
+                exp.fulfill()
+        })
+
+        let stepRunner = makeStepRunner(steps: [step1, step2, step3])
         stepRunner.run()
         
         waitForExpectations()

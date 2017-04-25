@@ -15,23 +15,25 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     // MARK: - Constants
 
     private enum Constants {
-        static let messageHandlerName = "responseHandler"
+        static let coreScript = "SwiftScraper"
+        static let messageHandlerName = "swiftScraperResponseHandler"
     }
 
     // MARK: - Properties
 
     private let moduleName: String
     private (set) public var webView: WKWebView!
-    let userContentController = WKUserContentController()
-    var navigationCompletion: NavigationCompletion?
-    var asyncScriptCompletion: ScriptResponseResultCompletion?
+    private let userContentController = WKUserContentController()
+    private var navigationCompletion: NavigationCompletion?
+    private var asyncScriptCompletion: ScriptResponseResultCompletion?
 
     // MARK: - Setup
 
     /// Initialize the Browser object.
     ///
-    /// - parameter moduleName: The name of the JavaScript module.
-    /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+)
+    /// - parameter moduleName: The name of the JavaScript module. By convention, the filename of the JavaScript file is the same as the module name.
+    /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+).
+    /// - parameter scriptBundle: The bundle from which to load the JavaScript file. Defaults to the main bundle.
     init(moduleName: String, customUserAgent: String? = nil, scriptBundle: Bundle = Bundle.main) {
         self.moduleName = moduleName
         super.init()
@@ -40,11 +42,16 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     private func setupWebView(moduleName: String, customUserAgent: String?, scriptBundle: Bundle) {
 
-        let scriptURL = scriptBundle.path(forResource: moduleName, ofType: "js")
-        let scriptContent = try! String(contentsOfFile: scriptURL!)  // swiftlint:disable:this force_try
-        let script = WKUserScript(source: scriptContent, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        let coreScriptURL = moduleResourceBundle().path(forResource: Constants.coreScript, ofType: "js")
+        let coreScriptContent = try! String(contentsOfFile: coreScriptURL!)
+        let coreScript = WKUserScript(source: coreScriptContent, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        userContentController.addUserScript(coreScript)
 
-        userContentController.addUserScript(script)
+        let moduleScriptURL = scriptBundle.path(forResource: moduleName, ofType: "js")
+        let moduleScriptContent = try! String(contentsOfFile: moduleScriptURL!)  // TODO: prevent force try, propagate error
+        let moduleScript = WKUserScript(source: moduleScriptContent, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        userContentController.addUserScript(moduleScript)
+
         userContentController.add(self, name: Constants.messageHandlerName)
 
         let config = WKWebViewConfiguration()
@@ -56,6 +63,17 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         if #available(iOS 9.0, *) {
             webView.customUserAgent = customUserAgent
         }
+    }
+
+    /// Returns the resource bundle for this Pod where all the resources are kept, 
+    /// or defaulting to the framework module bundle (e.g. when running unit tests).
+    private func moduleResourceBundle() -> Bundle {
+        let moduleBundle = Bundle(for: Browser.self)
+        guard let resourcesBundleURL = moduleBundle.url(forResource: "SwiftScraper", withExtension: ".bundle"),
+            let resourcesBundle = Bundle(url: resourcesBundleURL) else {
+            return moduleBundle
+        }
+        return resourcesBundle
     }
 
     // MARK: - WKNavigationDelegate

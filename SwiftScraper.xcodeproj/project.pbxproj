@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5B3B035A1EAF3DF80080617F /* page2.html in Resources */ = {isa = PBXBuildFile; fileRef = 5B3B03591EAF3DF70080617F /* page2.html */; };
+		5B3B035D1EAF5AD90080617F /* SwiftScraper.js in Resources */ = {isa = PBXBuildFile; fileRef = 5B3B035C1EAF5AD90080617F /* SwiftScraper.js */; };
 		5B4660BE1EA87A6A005B921F /* SwiftScraper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B4660B41EA87A6A005B921F /* SwiftScraper.framework */; };
 		5B4660C31EA87A6A005B921F /* SwiftScraperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4660C21EA87A6A005B921F /* SwiftScraperTests.swift */; };
 		5B4660C51EA87A6A005B921F /* SwiftScraper.h in Headers */ = {isa = PBXBuildFile; fileRef = 5B4660B71EA87A6A005B921F /* SwiftScraper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -46,6 +47,7 @@
 		2A1A7ADFE97773C67B0A9406 /* Pods-SwiftScraperTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftScraperTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftScraperTests/Pods-SwiftScraperTests.debug.xcconfig"; sourceTree = "<group>"; };
 		546557DC044237AD5296319A /* Pods-SwiftScraper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftScraper.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftScraper/Pods-SwiftScraper.release.xcconfig"; sourceTree = "<group>"; };
 		5B3B03591EAF3DF70080617F /* page2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = page2.html; sourceTree = "<group>"; };
+		5B3B035C1EAF5AD90080617F /* SwiftScraper.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = SwiftScraper.js; sourceTree = "<group>"; };
 		5B4660B41EA87A6A005B921F /* SwiftScraper.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftScraper.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B4660B71EA87A6A005B921F /* SwiftScraper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftScraper.h; sourceTree = "<group>"; };
 		5B4660B81EA87A6A005B921F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -94,14 +96,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5B3B035B1EAF59A00080617F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5B3B035C1EAF5AD90080617F /* SwiftScraper.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		5B4660AA1EA87A6A005B921F = {
 			isa = PBXGroup;
 			children = (
+				92685D469D3B000D8A2BEE2B /* Frameworks */,
+				B949B45A874E06C76BF2DA45 /* Pods */,
+				5B4660B51EA87A6A005B921F /* Products */,
+				5B3B035B1EAF59A00080617F /* Resources */,
 				5B4660B61EA87A6A005B921F /* Sources */,
 				5B4660C11EA87A6A005B921F /* Tests */,
-				5B4660B51EA87A6A005B921F /* Products */,
-				B949B45A874E06C76BF2DA45 /* Pods */,
-				92685D469D3B000D8A2BEE2B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -284,6 +295,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B3B035D1EAF5AD90080617F /* SwiftScraper.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -57,6 +57,22 @@ var SwiftScraperTests = (function() {
         window.location = 'page2.html?fruit=' + fruit + '&color=' + color;
     }
 
+    function getStringAsync() {
+        setTimeout(function() {
+            SwiftScraper.postMessage('thanks for waiting...hello!');
+        }, 200);
+    }
+
+    function multiArgAsync(n, b, s, numArr, obj) {
+        SwiftScraper.postMessage({
+            number: n,
+            bool: b,
+            text: s,
+            numArr: numArr,
+            obj: obj
+        });
+    }
+
     return {
         assertPage1Title: assertPage1Title,
         assertPage2Title: assertPage2Title,
@@ -70,6 +86,8 @@ var SwiftScraperTests = (function() {
         multiArg: multiArg,
         testParamsFromModel: testParamsFromModel,
         goToPage2: goToPage2,
-        goToPage2WithParams: goToPage2WithParams
+        goToPage2WithParams: goToPage2WithParams,
+        getStringAsync: getStringAsync,
+        multiArgAsync: multiArgAsync
     };
 })();
