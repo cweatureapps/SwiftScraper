@@ -3,6 +3,10 @@ var SwiftScraperTests = (function() {
         return document.title == 'Page 1';
     }
 
+    function assertPage2Title() {
+        return document.title == 'Page 2';
+    }
+
     function getInnerText(selector) {
         return document.querySelector(selector).innerText;
     }
@@ -42,11 +46,20 @@ var SwiftScraperTests = (function() {
     }
 
     function testParamsFromModel(text, number, nullVariable, obj) {
-        return text === "hello world" && number === 987.6 && nullVariable === null && obj["foo"] === "bar"
+        return text === "hello world" && number === 987.6 && nullVariable === null && obj["foo"] === "bar";
+    }
+
+    function goToPage2() {
+        window.location = "page2.html"
+    }
+
+    function goToPage2WithParams(fruit, color) {
+        window.location = 'page2.html?fruit=' + fruit + '&color=' + color;
     }
 
     return {
         assertPage1Title: assertPage1Title,
+        assertPage2Title: assertPage2Title,
         getInnerText: getInnerText,
         getString: getString,
         getBooleanTrue: getBooleanTrue,
@@ -55,6 +68,8 @@ var SwiftScraperTests = (function() {
         getJsonObject: getJsonObject,
         getJsonArray: getJsonArray,
         multiArg: multiArg,
-        testParamsFromModel: testParamsFromModel
+        testParamsFromModel: testParamsFromModel,
+        goToPage2: goToPage2,
+        goToPage2WithParams: goToPage2WithParams
     };
 })();

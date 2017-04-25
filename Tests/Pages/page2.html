@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Page 2</title>
+    </head>
+    <body>
+        <h1>This is the second page</h1>
+        <span id="paramsSpan">something</span>
+
+    <script>
+        // Populates #paramsSpan for the test "testPageChangeStepWithParams"
+        // when coming to this page using the function goToPage2WithParams()
+        function getParameterByName(name) {
+            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search); return match
+                && decodeURIComponent(match[1].replace(/\+/g, ' '));
+        }
+        document.getElementById('paramsSpan').innerHTML = 'fruit is ' + getParameterByName('fruit') + ', color is ' + getParameterByName('color')
+    </script>
+
+    </body>
+</html>

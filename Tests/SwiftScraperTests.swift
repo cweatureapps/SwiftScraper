@@ -29,6 +29,8 @@ class SwiftScraperTests: XCTestCase {
             steps: steps)
     }
 
+    // MARK: - OpenPageStep
+
     func testOpenPageStep() {
         let exp = expectation(description: #function)
 
@@ -54,6 +56,8 @@ class SwiftScraperTests: XCTestCase {
 
         waitForExpectations()
     }
+
+    // MARK: - ScriptStep
 
     func testScriptStep() {
         let exp = expectation(description: #function)
@@ -216,6 +220,99 @@ class SwiftScraperTests: XCTestCase {
         let stepRunner = makeStepRunner(steps: [step1, step2, step3])
         stepRunner.run()
 
+        waitForExpectations()
+    }
+
+    // MARK: - PageChangeStep
+
+    func testPageChangeStep() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            navigationAssertionFunctionName: "assertPage1Title")
+
+        let step2 = PageChangeStep(
+            functionName: "goToPage2",
+            navigationAssertionFunctionName: "assertPage2Title")
+
+        let stepRunner = makeStepRunner(steps: [step1, step2])
+        var stepIndex = 0
+        stepRunner.state.afterChange.add { change in
+            switch stepIndex {
+            case 0:
+                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be in progress(0)")
+            case 1:
+                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be in progress(1)")
+            case 2:
+                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                exp.fulfill()
+            default:
+                break
+            }
+            stepIndex += 1
+        }
+        stepRunner.run()
+
+        waitForExpectations()
+    }
+
+    func testPageChangeStepWithParams() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            navigationAssertionFunctionName: "assertPage1Title")
+
+        let step2 = PageChangeStep(
+            functionName: "goToPage2WithParams",
+            params: "apple", "red",
+            navigationAssertionFunctionName: "assertPage2Title")
+
+        let step3 = ScriptStep(
+            functionName: "getInnerText",
+            params: "#paramsSpan") { response, _ in
+            XCTAssertEqual(response as? String, "fruit is apple, color is red")
+            exp.fulfill()
+        }
+
+        let stepRunner = makeStepRunner(steps: [step1, step2, step3])
+        stepRunner.run()
+
+        waitForExpectations()
+    }
+
+    func testPageChangeStepWithModelParams() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            navigationAssertionFunctionName: "assertPage1Title")
+
+        let step2 = ScriptStep(functionName: "getString") { response, model in
+            XCTAssertEqual(response as? String, "hello world")
+
+            // model is updated here
+            model["fruit"] = "apple"
+            model["color"] = "red"
+        }
+
+        // parameters for step 3 comes from the model
+        let step3 = PageChangeStep(
+            functionName: "goToPage2WithParams",
+            paramsKeys: ["fruit", "color"],
+            navigationAssertionFunctionName: "assertPage2Title")
+
+        let step4 = ScriptStep(
+            functionName: "getInnerText",
+            params: "#paramsSpan") { response, _ in
+                XCTAssertEqual(response as? String, "fruit is apple, color is red")
+                exp.fulfill()
+        }
+
+        let stepRunner = makeStepRunner(steps: [step1, step2, step3, step4])
+        stepRunner.run()
+        
         waitForExpectations()
     }
 }

@@ -115,12 +115,13 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         }
     }
 
+    /// Loads a page with the given path into the WebView.
     func load(path: String, completion: @escaping NavigationCompletion) {
         self.navigationCompletion = completion
         webView.load(URLRequest(url: URL(string: path)!))
     }
 
-    // Run some javascript with error handling and print logging
+    /// Run some JavaScript with error handling and logging.
     func runScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCompletion) {
         guard let script = try? JavaScriptGenerator.generateScript(moduleName: moduleName, functionName: functionName, params: params) else {
             completion(.failure(BrowserError.parameterSerialization))
@@ -145,6 +146,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         }
     }
 
+    /// Run some JavaScript that results in a page being loaded (i.e. navigation happens).
     func runPageChangeScript(functionName: String, params: [Any] = [], completion: @escaping NavigationCompletion) {
         self.navigationCompletion = completion
         runScript(functionName: functionName, params: params) { result in
@@ -155,6 +157,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         }
     }
 
+    /// Run some JavaScript asynchronously, the completion being called when a script message is received from the JavaScript.
     func runAsyncScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCompletion) {
         self.asyncScriptCompletion = completion
         runScript(functionName: functionName, params: params) { result in
