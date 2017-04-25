@@ -13,12 +13,20 @@ public class ScriptStep: Step {
     private var functionName: String
     var params: [Any]
     private var paramsKeys: [String]
-    private var handler: (Any?, inout JSON) -> Void
+    private var handler: ScriptStepHandler
+
+    /// Initializer.
+    ///
+    /// - parameter functionName: The name of the JavaScript function to call. The module namespace is automatically added.
+    /// - parameter params: Parameters which will be passed to the JavaScript function.
+    /// - parameter paramsKeys: Look up the values from the JSON model dictionary using these keys,
+    ///   and pass them as the parameters to the JavaScript function. If provided, these are used instead of `params`.
+    /// - parameter handler: Callback function which returns data from JavaScript, and passes the model JSON dictionary for modification.
     public init(
         functionName: String,
         params: Any...,
         paramsKeys: [String] = [],
-        handler: @escaping (Any?, inout JSON) -> Void) {
+        handler: @escaping ScriptStepHandler) {
         self.functionName = functionName
         self.params = params
         self.paramsKeys = paramsKeys
@@ -35,8 +43,8 @@ public class ScriptStep: Step {
         runScript(browser: browser, functionName: functionName, params: params) { [weak self] result in
             guard let this = self else { return }
             switch result {
-            case .failure:
-                completion(.failure(StepError()))
+            case .failure(let error):
+                completion(.failure(error))
             case .success(let response):
                 var modelCopy = model
                 this.handler(response, &modelCopy)

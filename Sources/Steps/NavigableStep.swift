@@ -12,21 +12,27 @@ import Foundation
 protocol NavigableStep: Step {
 
     /// Name of JavaScript function that checks whether the page loaded correctly and returns a Boolean.
-    var navigationAssertionFunctionName: String? { get set }
+    var assertionName: String? { get set }
 }
 
 extension NavigableStep {
+
+    /// Runs the assertion function to check whether the page loaded correctly and calling the `StepCompletion`.
+    ///
+    /// - parameter browser: The `Browser` used for web scraping.
+    /// - parameter model: A JSON model that allows data to be passed from step to step in the pipeline.
+    /// - parameter completion: The completion called to indicate success or failure.
     func assertNavigation(with browser: Browser, model: JSON, completion: @escaping StepCompletion) {
-        guard let navigationAssertionFunctionName = self.navigationAssertionFunctionName else {
+        guard let assertionName = self.assertionName else {
             completion(.success(model))
             return
         }
-        browser.runScript(functionName: navigationAssertionFunctionName) { result in
+        browser.runScript(functionName: assertionName) { result in
             switch result {
             case .success(let ok as Bool) where ok:
                 completion(.success(model))
             default:
-                completion(.failure(StepError()))
+                completion(.failure(SwiftScraperError.contentUnexpected))
             }
         }
     }

@@ -10,23 +10,23 @@ import XCTest
 @testable import SwiftScraper
 
 /// End-to-end tests for the `StepRunner`, which is the engine that runs the step pipeline.
-class SwiftScraperTests: XCTestCase {
+class StepRunnerTests: XCTestCase {
 
     func waitForExpectations() {
-        waitForExpectations(timeout: 30) { error in
+        waitForExpectations(timeout: 5) { error in
             guard let error = error else { return }
             XCTFail(error.localizedDescription)
         }
     }
 
     func path(for filename: String) -> String {
-        return Bundle(for: SwiftScraperTests.self).url(forResource: filename, withExtension: "html")!.absoluteString
+        return Bundle(for: StepRunnerTests.self).url(forResource: filename, withExtension: "html")!.absoluteString
     }
 
     func makeStepRunner(steps: [Step]) -> StepRunner {
         return StepRunner(
-            moduleName: "SwiftScraperTests",
-            scriptBundle: Bundle(for: SwiftScraperTests.self),
+            moduleName: "StepRunnerTests",
+            scriptBundle: Bundle(for: StepRunnerTests.self),
             steps: steps)
     }
 
@@ -37,7 +37,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let stepRunner = makeStepRunner(steps: [step1])
         var stepIndex = 0
@@ -65,7 +65,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = ScriptStep(functionName: "getInnerText", params: "h1") { response, _ in
             XCTAssertEqual(response as? String, "Hello world!")
@@ -97,7 +97,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = ScriptStep(functionName: "getString") { response, _ in
             XCTAssertEqual(response as? String, "hello world")
@@ -138,7 +138,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = ScriptStep(
             functionName: "multiArg",
@@ -164,7 +164,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = ScriptStep(functionName: "getInnerText", params: "h1") { response, model in
             let responseString = response as? String
@@ -199,7 +199,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = ScriptStep(functionName: "getString") { response, model in
             XCTAssertEqual(response as? String, "hello world")
@@ -231,11 +231,11 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = PageChangeStep(
             functionName: "goToPage2",
-            navigationAssertionFunctionName: "assertPage2Title")
+            assertionName: "assertPage2Title")
 
         let stepRunner = makeStepRunner(steps: [step1, step2])
         var stepIndex = 0
@@ -263,12 +263,12 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = PageChangeStep(
             functionName: "goToPage2WithParams",
             params: "apple", "red",
-            navigationAssertionFunctionName: "assertPage2Title")
+            assertionName: "assertPage2Title")
 
         let step3 = ScriptStep(
             functionName: "getInnerText",
@@ -288,7 +288,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = ScriptStep(functionName: "getString") { response, model in
             XCTAssertEqual(response as? String, "hello world")
@@ -302,7 +302,7 @@ class SwiftScraperTests: XCTestCase {
         let step3 = PageChangeStep(
             functionName: "goToPage2WithParams",
             paramsKeys: ["fruit", "color"],
-            navigationAssertionFunctionName: "assertPage2Title")
+            assertionName: "assertPage2Title")
 
         let step4 = ScriptStep(
             functionName: "getInnerText",
@@ -324,7 +324,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = AsyncScriptStep(functionName: "getStringAsync") { response, _ in
             XCTAssertEqual(response as? String, "thanks for waiting...hello!")
@@ -356,7 +356,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = AsyncScriptStep(
             functionName: "multiArgAsync",
@@ -382,7 +382,7 @@ class SwiftScraperTests: XCTestCase {
 
         let step1 = OpenPageStep(
             path: path(for: "page1"),
-            navigationAssertionFunctionName: "assertPage1Title")
+            assertionName: "assertPage1Title")
 
         let step2 = ScriptStep(functionName: "getString") { response, model in
             XCTAssertEqual(response as? String, "hello world")

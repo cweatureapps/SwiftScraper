@@ -9,7 +9,9 @@
 import Foundation
 import WebKit
 
-/// Encapsulates the webview and its delegates, providing an closure based API.
+/// The browser used to perform the web scraping.
+///
+/// This class encapsulates the webview and its delegates, providing an closure based API.
 public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     // MARK: - Constants
@@ -32,9 +34,9 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     /// Initialize the Browser object.
     ///
     /// - parameter moduleName: The name of the JavaScript module. By convention, the filename of the JavaScript file is the same as the module name.
-    /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+).
     /// - parameter scriptBundle: The bundle from which to load the JavaScript file. Defaults to the main bundle.
-    init(moduleName: String, customUserAgent: String? = nil, scriptBundle: Bundle = Bundle.main) {
+    /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+).
+    init(moduleName: String, scriptBundle: Bundle = Bundle.main, customUserAgent: String? = nil) {
         self.moduleName = moduleName
         super.init()
         setupWebView(moduleName: moduleName, customUserAgent: customUserAgent, scriptBundle: scriptBundle)
@@ -113,11 +115,11 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         asyncScriptCompletion?(.success(message.body))
     }
 
-    // MARK: - public API
+    // MARK: - API
 
     /// Insert the WebView at index 0 of the given parent view,
     /// using AutoLayout to pin all 4 sides to the parent.
-    public func insertIntoView(parent: UIView) {
+    func insertIntoView(parent: UIView) {
         parent.insertSubview(webView, at: 0)
         webView.translatesAutoresizingMaskIntoConstraints = false
         if #available(iOS 9.0, *) {
@@ -142,7 +144,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     /// Run some JavaScript with error handling and logging.
     func runScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCompletion) {
         guard let script = try? JavaScriptGenerator.generateScript(moduleName: moduleName, functionName: functionName, params: params) else {
-            completion(.failure(BrowserError.parameterSerialization))
+            completion(.failure(SwiftScraperError.parameterSerialization))
             return
         }
         print("script to run:", script)
@@ -152,10 +154,10 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
                 nsError.code == WKError.Code.javaScriptExceptionOccurred.rawValue {
                 let jsErrorMessage = nsError.userInfo["WKJavaScriptExceptionMessage"] as? String ?? nsError.localizedDescription
                 print("javaScriptExceptionOccurred error: \(jsErrorMessage)")
-                completion(.failure(BrowserError.javascriptError(errorMessage: jsErrorMessage)))
+                completion(.failure(SwiftScraperError.javascriptError(errorMessage: jsErrorMessage)))
             } else if let error = error {
                 print("javascript error: \(error.localizedDescription)")
-                completion(.failure(BrowserError.javascriptError(errorMessage: error.localizedDescription)))
+                completion(.failure(SwiftScraperError.javascriptError(errorMessage: error.localizedDescription)))
             } else {
                 print("javascript response:")
                 print(response ?? "(no response)")

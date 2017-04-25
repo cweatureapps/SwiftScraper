@@ -1,5 +1,5 @@
 //
-//  BrowserError.swift
+//  SwiftScraperError.swift
 //  SwiftScraper
 //
 //  Created by Ken Ko on 21/04/2017.
@@ -8,12 +8,12 @@
 
 import Foundation
 
-public enum BrowserError: Error, LocalizedError {
+public enum SwiftScraperError: Error, LocalizedError {
     case parameterSerialization
     case parsing
     case contentUnexpected
     case javascriptError(errorMessage: String)
-    case navigationFailed(String)
+    case navigationFailed
 
     public var errorDescription: String? {
         switch self {
@@ -21,7 +21,7 @@ public enum BrowserError: Error, LocalizedError {
         case .parsing: return "Something went wrong when parsing the page"
         case .contentUnexpected: return "Something went wrong, the page contents was not what was expected"
         case .javascriptError(let errorMessage): return "A JavaScript error occurred when trying to process the page: \(errorMessage)"
-        case .navigationFailed(let errorMessage): return errorMessage
+        case .navigationFailed: return "Something went wrong when navigating to the page"
         }
     }
 }

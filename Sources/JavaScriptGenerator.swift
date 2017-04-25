@@ -34,6 +34,6 @@ struct JavaScriptGenerator {
             let jsonString = NSString(data: prettyJsonData, encoding: String.Encoding.utf8.rawValue) as? String {
             return jsonString
         }
-        throw BrowserError.parameterSerialization
+        throw SwiftScraperError.parameterSerialization
     }
 }

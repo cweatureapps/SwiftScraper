@@ -1,5 +1,5 @@
 //
-//  Types.swift
+//  TypeAliases.swift
 //  SwiftScraper
 //
 //  Created by Ken Ko on 21/04/2017.
@@ -10,9 +10,18 @@ import Foundation
 
 public typealias JSON = [String: Any]
 
-public typealias StepCompletion = (Result<JSON, StepError>) -> Void
+/// Callback to indicate success or failure of each step's run.
+///
+/// - parameter result: Result indicating success or failure.
+///   If success, the JSON model must be returned to pass onto the next step.
+public typealias StepCompletion = (_ result: Result<JSON, SwiftScraperError>) -> Void
+
 public typealias NavigationCompletion = (Bool) -> Void
 public typealias ScriptResponseCompletion = (Any?) -> Void
-public typealias ScriptResponseResultCompletion = (Result<Any?, BrowserError>) -> Void
+public typealias ScriptResponseResultCompletion = (Result<Any?, SwiftScraperError>) -> Void
 
-public struct StepError: Error {}
+/// Callback invoked when a `ScriptStep` or `AsyncScriptStep` is finished.
+///
+/// - parameter response: Data returned from JavaScript.
+/// - parameter model: The model JSON dictionary which can be modified by the step.
+public typealias ScriptStepHandler = (_ response: Any?, _ model: inout JSON) -> Void

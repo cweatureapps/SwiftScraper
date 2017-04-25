@@ -11,18 +11,22 @@ import Foundation
 /// Step that loads a new page.
 public class OpenPageStep: Step, NavigableStep {
     private var path: String
-    var navigationAssertionFunctionName: String?
+    var assertionName: String?
 
-    public init(path: String, navigationAssertionFunctionName: String? = nil) {
+    /// Initializer.
+    ///
+    /// - parameter path: The address of the page to load, as you would type into the browser address bar.
+    /// - parameter assertionName: Name of JavaScript function that checks whether the page loaded correctly.
+    public init(path: String, assertionName: String? = nil) {
         self.path = path
-        self.navigationAssertionFunctionName = navigationAssertionFunctionName
+        self.assertionName = assertionName
     }
 
     public func run(with browser: Browser, model: JSON, completion: @escaping StepCompletion) {
         browser.load(path: path) { [weak self] success in
             guard let this = self else { return }
             guard success else {
-                completion(.failure(StepError()))
+                completion(.failure(SwiftScraperError.navigationFailed))
                 return
             }
             this.assertNavigation(with: browser, model: model, completion: completion)

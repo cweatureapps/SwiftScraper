@@ -1,4 +1,4 @@
-var SwiftScraperTests = (function() {
+var StepRunnerTests = (function() {
     function assertPage1Title() {
         return document.title == 'Page 1';
     }

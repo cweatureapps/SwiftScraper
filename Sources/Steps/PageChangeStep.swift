@@ -10,19 +10,28 @@ import Foundation
 
 /// Step that runs some script, which will result in a new page being loaded.
 public class PageChangeStep: Step, NavigableStep {
+
     private var functionName: String
     private var params: [Any]
     private var paramsKeys: [String]
-    var navigationAssertionFunctionName: String?
+    var assertionName: String?
+
+    /// Initializer.
+    ///
+    /// - parameter functionName: The name of the JavaScript function to call. The module namespace is automatically added.
+    /// - parameter params: Parameters which will be passed to the JavaScript function.
+    /// - parameter paramsKeys: Look up the values from the JSON model dictionary using these keys, 
+    ///   and pass them as the parameters to the JavaScript function. If provided, these are used instead of `params`.
+    /// - parameter assertionName: Name of JavaScript function that checks whether the page loaded correctly.
     public init(
         functionName: String,
         params: Any...,
         paramsKeys: [String] = [],
-        navigationAssertionFunctionName: String? = nil) {
+        assertionName: String? = nil) {
         self.functionName = functionName
         self.params = params
         self.paramsKeys = paramsKeys
-        self.navigationAssertionFunctionName = navigationAssertionFunctionName
+        self.assertionName = assertionName
     }
 
     public func run(with browser: Browser, model: JSON, completion: @escaping StepCompletion) {
@@ -35,7 +44,7 @@ public class PageChangeStep: Step, NavigableStep {
         browser.runPageChangeScript(functionName: functionName, params: params) { [weak self] success in
             guard let this = self else { return }
             guard success else {
-                completion(.failure(StepError()))
+                completion(.failure(SwiftScraperError.navigationFailed))
                 return
             }
             this.assertNavigation(with: browser, model: model, completion: completion)

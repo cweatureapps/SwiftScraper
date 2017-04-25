@@ -11,11 +11,19 @@ import Observable
 
 // MARK: - StepRunnerState
 
+/// Indicates the progress and status of the `StepRunner`.
 public enum StepRunnerState {
+    /// Not yet started, `run()` has not been called.
     case notStarted
+
+    /// The pipeline is running, and currently executing the step at the index.
     case inProgress(index: Int)
+
+    /// The execution finished successfully.
     case success
-    case failure
+
+    /// The execution failed with the given error.
+    case failure(error: Error)
 }
 
 public func == (lhs: StepRunnerState, rhs: StepRunnerState) -> Bool {
@@ -35,22 +43,39 @@ public func != (lhs: StepRunnerState, rhs: StepRunnerState) -> Bool {
 
 // MARK: - StepRunner
 
+/// The `StepRunner` is the engine that runs the steps in the pipeline.
+///
+/// Once initialized, call the `run()` method to execute the steps,
+/// and observe the `state` property to be notified of progress and status.
 public class StepRunner {
-    public var state: Observable<StepRunnerState> = Observable(.notStarted)
-    public let browser: Browser
+
+    /// The observable state which indicates the progress and status.
+    public private(set) var state: Observable<StepRunnerState> = Observable(.notStarted)
+
+    /// A model dictionary which can be used to pass data from step to step.
     public private(set) var model: JSON = [:]
+
+    private let browser: Browser
     private var steps: [Step]
     private var index = 0
 
+    /// Initializer to create the `StepRunner`.
+    ///
+    /// - parameter moduleName: The name of the JavaScript module which has your customer functions. 
+    ///   By convention, the filename of the JavaScript file is the same as the module name.
+    /// - parameter scriptBundle: The bundle from which to load the JavaScript file. Defaults to the main bundle.
+    /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+).
+    /// - parameter steps: The steps to run in the pipeline.
     public init(
         moduleName: String,
-        customUserAgent: String? = nil,
         scriptBundle: Bundle = Bundle.main,
+        customUserAgent: String? = nil,
         steps: [Step]) {
-        browser = Browser(moduleName: moduleName, customUserAgent: customUserAgent, scriptBundle: scriptBundle)
+        browser = Browser(moduleName: moduleName, scriptBundle: scriptBundle, customUserAgent: customUserAgent)
         self.steps = steps
     }
 
+    /// Execute the steps.
     public func run() {
         guard let firstStep = steps.first else {
             state ^= .success
@@ -65,10 +90,16 @@ public class StepRunner {
                 this.index += 1
                 this.model = model
                 this.run()
-            case .failure:
-                this.state ^= .failure
+            case .failure(let error):
+                this.state ^= .failure(error: error)
             }
         }
     }
 
+    /// Insert the WebView used for scraping at index 0 of the given parent view, using AutoLayout to pin all 4 sides to the parent.
+    ///
+    /// Useful if the app would like to see the scraping in the foreground.
+    public func insertWebViewIntoView(parent: UIView) {
+        browser.insertIntoView(parent: parent)
+    }
 }
