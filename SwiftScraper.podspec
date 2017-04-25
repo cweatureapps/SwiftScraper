@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'SwiftScraper'
-  s.version          = '0.1.0'
+  s.version          = '0.2.0'
   s.summary          = 'Screen scraping orchestration for iOS in Swift.'
   s.description      = <<-DESC
 Framework that makes it easy to integrate and orchestrate screen scraping with your Swift iOS app.
