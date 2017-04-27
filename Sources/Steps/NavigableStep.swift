@@ -17,22 +17,22 @@ protocol NavigableStep: Step {
 
 extension NavigableStep {
 
-    /// Runs the assertion function to check whether the page loaded correctly and calling the `StepCompletion`.
+    /// Runs the assertion function to check whether the page loaded correctly and calling the `StepCompletionCallback`.
     ///
     /// - parameter browser: The `Browser` used for web scraping.
     /// - parameter model: A JSON model that allows data to be passed from step to step in the pipeline.
     /// - parameter completion: The completion called to indicate success or failure.
-    func assertNavigation(with browser: Browser, model: JSON, completion: @escaping StepCompletion) {
+    func assertNavigation(with browser: Browser, model: JSON, completion: @escaping StepCompletionCallback) {
         guard let assertionName = self.assertionName else {
-            completion(.success(model))
+            completion(.proceed(model))
             return
         }
         browser.runScript(functionName: assertionName) { result in
             switch result {
             case .success(let ok as Bool) where ok:
-                completion(.success(model))
+                completion(.proceed(model))
             default:
-                completion(.failure(SwiftScraperError.contentUnexpected))
+                completion(.failure(SwiftScraperError.contentUnexpected, model))
             }
         }
     }

@@ -14,6 +14,7 @@ public enum SwiftScraperError: Error, LocalizedError {
     case contentUnexpected
     case javascriptError(errorMessage: String)
     case navigationFailed
+    case incorrectStep
 
     public var errorDescription: String? {
         switch self {
@@ -22,6 +23,7 @@ public enum SwiftScraperError: Error, LocalizedError {
         case .contentUnexpected: return "Something went wrong, the page contents was not what was expected"
         case .javascriptError(let errorMessage): return "A JavaScript error occurred when trying to process the page: \(errorMessage)"
         case .navigationFailed: return "Something went wrong when navigating to the page"
+        case .incorrectStep: return "An incorrect step was specified"
         }
     }
 }

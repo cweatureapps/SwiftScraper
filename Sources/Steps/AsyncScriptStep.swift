@@ -35,7 +35,7 @@ public class AsyncScriptStep: ScriptStep {
         super.params = params   // set the params here
     }
 
-    override func runScript(browser: Browser, functionName: String, params: [Any], completion: @escaping ScriptResponseResultCompletion) {
+    override func runScript(browser: Browser, functionName: String, params: [Any], completion: @escaping ScriptResponseResultCallback) {
         browser.runAsyncScript(functionName: functionName, params: params, completion: completion)
     }
 }

@@ -76,21 +76,30 @@ public class StepRunner {
     }
 
     /// Execute the steps.
-    public func run() {
-        guard let firstStep = steps.first else {
-            state ^= .success
+    public func run() {        
+        guard index < steps.count else {
+            state ^= .failure(error: SwiftScraperError.incorrectStep)
             return
         }
+        let stepToExecute = steps[index]
         state ^= .inProgress(index: index)
-        firstStep.run(with: browser, model: model) { [weak self] result in
+        stepToExecute.run(with: browser, model: model) { [weak self] result in
             guard let this = self else { return }
+            this.model = result.model
             switch result {
-            case .success(let model):
-                _ = this.steps.removeFirst()
+            case .finish:
+                this.state ^= .success
+            case .proceed:
                 this.index += 1
-                this.model = model
+                guard this.index < this.steps.count else {
+                    this.state ^= .success
+                    return
+                }
                 this.run()
-            case .failure(let error):
+            case .jumpToStep(let nextStep, _):
+                this.index = nextStep
+                this.run()
+            case .failure(let error, _):
                 this.state ^= .failure(error: error)
             }
         }

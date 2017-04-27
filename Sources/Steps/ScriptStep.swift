@@ -8,6 +8,16 @@
 
 import Foundation
 
+// MARK: - Types
+
+/// Callback invoked when a `ScriptStep` or `AsyncScriptStep` is finished.
+///
+/// - parameter response: Data returned from JavaScript.
+/// - parameter model: The model JSON dictionary which can be modified by the step.
+public typealias ScriptStepHandler = (_ response: Any?, _ model: inout JSON) -> Void
+
+// MARK: - ScriptStep
+
 /// Step that runs some script which will return a result directly from the function.
 public class ScriptStep: Step {
     private var functionName: String
@@ -33,7 +43,7 @@ public class ScriptStep: Step {
         self.handler = handler
     }
 
-    public func run(with browser: Browser, model: JSON, completion: @escaping StepCompletion) {
+    public func run(with browser: Browser, model: JSON, completion: @escaping StepCompletionCallback) {
         let params: [Any]
         if paramsKeys.isEmpty {
             params = self.params
@@ -44,16 +54,16 @@ public class ScriptStep: Step {
             guard let this = self else { return }
             switch result {
             case .failure(let error):
-                completion(.failure(error))
+                completion(.failure(error, model))
             case .success(let response):
                 var modelCopy = model
                 this.handler(response, &modelCopy)
-                completion(.success(modelCopy))
+                completion(.proceed(modelCopy))
             }
         }
     }
 
-    func runScript(browser: Browser, functionName: String, params: [Any], completion: @escaping ScriptResponseResultCompletion) {
+    func runScript(browser: Browser, functionName: String, params: [Any], completion: @escaping ScriptResponseResultCallback) {
         browser.runScript(functionName: functionName, params: params, completion: completion)
     }
 

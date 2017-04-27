@@ -9,6 +9,22 @@
 import Foundation
 import WebKit
 
+// MARK: - Types
+
+/// Invoked when the page navigation has completed or failed.
+typealias NavigationCallback = (Bool) -> Void
+
+/// The result of some JavaScript execution.
+///
+/// If successful, it contains the response from the JavaScript;
+/// If it failed, it contains the error.
+typealias ScriptResponseResult = Result<Any?, SwiftScraperError>
+
+/// Invoked when the asynchronous call to some JavaScript is completed, containing the response or error.
+typealias ScriptResponseResultCallback = (_ result: ScriptResponseResult) -> Void
+
+// MARK: - Browser
+
 /// The browser used to perform the web scraping.
 ///
 /// This class encapsulates the webview and its delegates, providing an closure based API.
@@ -26,8 +42,8 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     private let moduleName: String
     private (set) public var webView: WKWebView!
     private let userContentController = WKUserContentController()
-    private var navigationCompletion: NavigationCompletion?
-    private var asyncScriptCompletion: ScriptResponseResultCompletion?
+    private var navigationCallback: NavigationCallback?
+    private var asyncScriptCallback: ScriptResponseResultCallback?
 
     // MARK: - Setup
 
@@ -96,11 +112,11 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     }
 
     private func callNavigationCompletion(_ success: Bool) {
-        guard let navigationCompletion = self.navigationCompletion else { return }
+        guard let navigationCompletion = self.navigationCallback else { return }
         // Make a local copy of closure before setting to nil, to due async nature of this,
         // there is a timing issue if simply setting to nil after calling the completion.
         // This is because the completion is the code that triggers the next step.
-        self.navigationCompletion = nil
+        self.navigationCallback = nil
         navigationCompletion(success)
     }
 
@@ -112,7 +128,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
             print("Ignoring message with name of \(message.name)")
             return
         }
-        asyncScriptCompletion?(.success(message.body))
+        asyncScriptCallback?(.success(message.body))
     }
 
     // MARK: - API
@@ -136,13 +152,13 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     }
 
     /// Loads a page with the given path into the WebView.
-    func load(path: String, completion: @escaping NavigationCompletion) {
-        self.navigationCompletion = completion
+    func load(path: String, completion: @escaping NavigationCallback) {
+        self.navigationCallback = completion
         webView.load(URLRequest(url: URL(string: path)!))
     }
 
     /// Run some JavaScript with error handling and logging.
-    func runScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCompletion) {
+    func runScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCallback) {
         guard let script = try? JavaScriptGenerator.generateScript(moduleName: moduleName, functionName: functionName, params: params) else {
             completion(.failure(SwiftScraperError.parameterSerialization))
             return
@@ -167,23 +183,23 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     }
 
     /// Run some JavaScript that results in a page being loaded (i.e. navigation happens).
-    func runPageChangeScript(functionName: String, params: [Any] = [], completion: @escaping NavigationCompletion) {
-        self.navigationCompletion = completion
+    func runPageChangeScript(functionName: String, params: [Any] = [], completion: @escaping NavigationCallback) {
+        self.navigationCallback = completion
         runScript(functionName: functionName, params: params) { result in
             if case .failure = result {
                 completion(false)
-                self.navigationCompletion = nil
+                self.navigationCallback = nil
             }
         }
     }
 
     /// Run some JavaScript asynchronously, the completion being called when a script message is received from the JavaScript.
-    func runAsyncScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCompletion) {
-        self.asyncScriptCompletion = completion
+    func runAsyncScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCallback) {
+        self.asyncScriptCallback = completion
         runScript(functionName: functionName, params: params) { result in
             if case .failure = result {
                 completion(result)
-                self.asyncScriptCompletion = nil
+                self.asyncScriptCallback = nil
             }
         }
     }
