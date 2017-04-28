@@ -44,9 +44,9 @@ class StepRunnerTests: XCTestCase {
         stepRunner.state.afterChange.add { change in
             switch stateChangeCounter {
             case 0:
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be in progress")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 0))
             case 1:
-                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.success)
                 exp.fulfill()
             default:
                 break
@@ -55,6 +55,43 @@ class StepRunnerTests: XCTestCase {
         }
         stepRunner.run()
 
+        waitForExpectations()
+    }
+
+    // MARK: - WaitStep
+
+    func testWaitStep() {
+        var startDate: Date!
+
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            assertionName: "assertPage1Title")
+
+        let step2 = WaitStep(waitTimeInSeconds: 0.5)
+
+        let stepRunner = makeStepRunner(steps: [step1, step2])
+        var stateChangeCounter = 0
+        stepRunner.state.afterChange.add { change in
+            print("afterChange called")
+            switch stateChangeCounter {
+            case 0:
+                assertState(change.newValue, StepRunnerState.inProgress(index: 0))
+            case 1:
+                assertState(change.newValue, StepRunnerState.inProgress(index: 1))
+                startDate = Date()
+            case 2:
+                assertState(change.newValue, StepRunnerState.success)
+                let endDate = Date()
+                XCTAssertTrue(endDate.timeIntervalSince(startDate) > 0.49)
+                exp.fulfill()
+            default:
+                break
+            }
+            stateChangeCounter += 1
+        }
+        stepRunner.run()
         waitForExpectations()
     }
 
@@ -90,14 +127,10 @@ class StepRunnerTests: XCTestCase {
         var stateChangeCounter = 0
         stepRunner.state.afterChange.add { change in
             switch stateChangeCounter {
-            case 0:
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be in progress(0)")
-            case 1:
-                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be in progress(1)")
-            case 2:
-                XCTAssertTrue(change.newValue == .inProgress(index: 2), "state should be in progress(2)")
+            case 0...2:
+                assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 3:
-                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.success)
 
                 // assert the model
                 let model = stepRunner.model
@@ -144,12 +177,12 @@ class StepRunnerTests: XCTestCase {
             switch stateChangeCounter {
             case 0:
                 // Step 0 OpenPageStep
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be in progress(0), was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 0))
             case 1:
                 // Step 1 ProcessStep - this will call .finish
-                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be in progress(1), was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 1))
             case 2:
-                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.success)
                 XCTAssertEqual(stepRunner.model["step1"] as? Int, 123)
                 exp.fulfill()
             default:
@@ -190,10 +223,10 @@ class StepRunnerTests: XCTestCase {
             switch stateChangeCounter {
             case 0:
                 // Step 0 OpenPageStep
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be in progress(0), was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 0))
             case 1:
                 // Step 1 ProcessStep - this will call .finish
-                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be in progress(1), was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 1))
             case 2:
                 if case .failure(let error) = change.newValue {
                     // assert that error is correct
@@ -246,16 +279,16 @@ class StepRunnerTests: XCTestCase {
             switch stateChangeCounter {
             case 0:
                 // Step 0 open page
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be in progress(0), was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 0))
             case 1:
                 // Step 1 jump step
-                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be in progress(1), was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 1))
             case 2:
                 // Step 3
-                XCTAssertTrue(change.newValue == .inProgress(index: 3), "state should be in progress(3), was \(change.newValue)")
-                XCTAssertTrue(change.oldValue == .inProgress(index: 1), "should have come from step 1")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 3))
+                assertState(change.oldValue, StepRunnerState.inProgress(index: 1))
             case 3:
-                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.success)
                 XCTAssertTrue(wasCalled)
                 XCTAssertEqual(stepRunner.model["step1"] as? Int, 123)
                 XCTAssertEqual(stepRunner.model["step3"] as? Int, 345)
@@ -335,11 +368,11 @@ class StepRunnerTests: XCTestCase {
         stepRunner.state.afterChange.add { change in
             switch stateChangeCounter {
             case 0:
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be inProgress(0)")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 0))
             case 1:
-                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be inProgress(1)")
+                assertState(change.newValue, StepRunnerState.inProgress(index: 1))
             case 2:
-                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.success)
             default:
                 break
             }
@@ -434,12 +467,10 @@ class StepRunnerTests: XCTestCase {
         let stepRunner = makeStepRunner(steps: [step1, step2])
         stepRunner.state.afterChange.add { change in
             switch stateChangeCounter {
-            case 0:
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be inProgress(0)")
-            case 1:
-                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be inProgress(1)")
+            case 0...1:
+                assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 2:
-                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.success)
                 XCTAssertEqual(stepRunner.model["step2"] as? String, "Hello world!") // Check that it is saved to the model
                 exp.fulfill()
             default:
@@ -498,12 +529,10 @@ class StepRunnerTests: XCTestCase {
         var stateChangeCounter = 0
         stepRunner.state.afterChange.add { change in
             switch stateChangeCounter {
-            case 0:
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be in progress(0)")
-            case 1:
-                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be in progress(1)")
+            case 0...1:
+                assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 2:
-                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.success)
                 exp.fulfill()
             default:
                 break
@@ -591,12 +620,10 @@ class StepRunnerTests: XCTestCase {
         var stateChangeCounter = 0
         stepRunner.state.afterChange.add { change in
             switch stateChangeCounter {
-            case 0:
-                XCTAssertTrue(change.newValue == .inProgress(index: 0), "state should be inProgress(0)")
-            case 1:
-                XCTAssertTrue(change.newValue == .inProgress(index: 1), "state should be inProgress(1)")
+            case 0...1:
+                assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 2:
-                XCTAssertTrue(change.newValue == .success, "state should be success, was \(change.newValue)")
+                assertState(change.newValue, StepRunnerState.success)
             default:
                 break
             }
@@ -669,4 +696,9 @@ class StepRunnerTests: XCTestCase {
         
         waitForExpectations()
     }
+}
+
+/// Assert that the two given states are equal.
+private func assertState(_ actual: StepRunnerState, _ expected: StepRunnerState, file: StaticString = #file, line: UInt = #line) {
+    XCTAssertTrue(actual == expected, "state should be \(expected) but was \(actual)", file: file, line: line)
 }
