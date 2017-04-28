@@ -14,11 +14,14 @@ import Foundation
 ///
 /// - parameter response: Data returned from JavaScript.
 /// - parameter model: The model JSON dictionary which can be modified by the step.
-public typealias ScriptStepHandler = (_ response: Any?, _ model: inout JSON) -> Void
+/// - returns: The `StepFlowResult` which allows control flow of the steps.
+public typealias ScriptStepHandler = (_ response: Any?, _ model: inout JSON) -> StepFlowResult
 
 // MARK: - ScriptStep
 
-/// Step that runs some script which will return a result directly from the function.
+/// Step that runs some JavaScript which will return a result immediately from the JavaScript function.
+///
+/// The `StepFlowResult` returned by the `handler` can be used to drive control flow of the steps.
 public class ScriptStep: Step {
     private var functionName: String
     var params: [Any]
@@ -57,8 +60,8 @@ public class ScriptStep: Step {
                 completion(.failure(error, model))
             case .success(let response):
                 var modelCopy = model
-                this.handler(response, &modelCopy)
-                completion(.proceed(modelCopy))
+                let result = this.handler(response, &modelCopy)
+                completion(result.convertToStepCompletionResult(with: modelCopy))
             }
         }
     }

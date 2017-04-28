@@ -9,6 +9,8 @@
 import Foundation
 
 /// Step that runs some script which will return a result asynchronously via `SwiftScraper.postMessage()`.
+///
+/// The `StepFlowResult` returned by the `handler` can be used to drive control flow of the steps.
 public class AsyncScriptStep: ScriptStep {
 
     // Note: Manually override init() due to Swift unsupported warning:

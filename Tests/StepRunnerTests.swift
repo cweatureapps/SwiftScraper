@@ -110,6 +110,7 @@ class StepRunnerTests: XCTestCase {
 
         let step3 = ScriptStep(functionName: "getInnerText", params: "#foo") { response, _ in
             XCTAssertEqual(response as? String, "modified")
+            return .proceed
         }
 
         let stepRunner = makeStepRunner(steps: [step1, step2, step3])
@@ -359,7 +360,7 @@ class StepRunnerTests: XCTestCase {
                 // Step 0 OpenPageStep
                 assertState(change.newValue, StepRunnerState.inProgress(index: 0))
             case 1:
-                // Step 1 ProcessStep - this will call .finish
+                // Step 1 ProcessStep - this will call .failure
                 assertState(change.newValue, StepRunnerState.inProgress(index: 1))
             case 2:
                 if case .failure(let error) = change.newValue {
@@ -495,6 +496,7 @@ class StepRunnerTests: XCTestCase {
         let step2 = ScriptStep(functionName: "getInnerText", params: "h1") { response, _ in
             XCTAssertEqual(response as? String, "Hello world!")
             exp.fulfill()
+            return .proceed
         }
 
         let stepRunner = makeStepRunner(steps: [step1, step2])
@@ -526,23 +528,28 @@ class StepRunnerTests: XCTestCase {
 
         let step2 = ScriptStep(functionName: "getString") { response, _ in
             XCTAssertEqual(response as? String, "hello world")
+            return .proceed
         }
 
         let step3 = ScriptStep(functionName: "getBooleanTrue") { response, _ in
             XCTAssertTrue(response as! Bool)
+            return .proceed
         }
 
         let step4 = ScriptStep(functionName: "getBooleanFalse") { response, _ in
             XCTAssertFalse(response as! Bool)
+            return .proceed
         }
 
         let step5 = ScriptStep(functionName: "getNumber") { response, _ in
             XCTAssertEqual(response as? Double, 3.45)
+            return .proceed
         }
 
         let step6 = ScriptStep(functionName: "getJsonObject") { response, _ in
             let json = response as! JSON
             XCTAssertEqual(json["message"] as? String, "something")
+            return .proceed
         }
 
         let step7 = ScriptStep(functionName: "getJsonArray") { response, _ in
@@ -550,6 +557,7 @@ class StepRunnerTests: XCTestCase {
             XCTAssertEqual(jsonArray[0]["fruit"] as? String, "apple")
             XCTAssertEqual(jsonArray[1]["fruit"] as? String, "pear")
             exp.fulfill()
+            return .proceed
         }
 
         let stepRunner = makeStepRunner(steps: [step1, step2, step3, step4, step5, step6, step7])
@@ -576,6 +584,7 @@ class StepRunnerTests: XCTestCase {
                 XCTAssertEqual(json["numArr"] as! [Int], [1,2,3])
                 XCTAssertEqual((json["obj"] as! JSON)["foo"] as! String, "bar")
                 exp.fulfill()
+                return .proceed
         })
 
         let stepRunner = makeStepRunner(steps: [step1, step2])
@@ -595,6 +604,7 @@ class StepRunnerTests: XCTestCase {
             let responseString = response as? String
             XCTAssertEqual(responseString, "Hello world!")
             model["step2"] = responseString // model is updated here
+            return .proceed
         }
 
         var stateChangeCounter = 0
@@ -638,11 +648,67 @@ class StepRunnerTests: XCTestCase {
             paramsKeys: ["text", "number", "doesntExistShouldBeNull", "object"]) { response, _ in
             XCTAssertTrue(response as! Bool, "JavaScript failed assertion when checking the parameters passed from the model")
             exp.fulfill()
+            return .proceed
         }
 
         let stepRunner = makeStepRunner(steps: [step1, step2, step3])
         stepRunner.run()
 
+        waitForExpectations()
+    }
+
+    func testScriptStepFailEarly() {
+        let exp = expectation(description: #function)
+
+        let step0 = OpenPageStep(
+            path: path(for: "page1"),
+            assertionName: "assertPage1Title")
+
+        let step1 = ScriptStep(
+            functionName: "getString") { _, model in
+                model["step1"] = 123
+                let error = NSError(domain: "StepRunnerTests", code: 12345, userInfo: nil)
+                return .failure(error) // fail early
+        }
+
+        let step2 = ProcessStep { model in
+            XCTFail("step 2 should not run")
+            return .proceed
+        }
+
+        let step3 = ProcessStep { model in
+            XCTFail("step 3 should not run")
+            return .proceed
+        }
+
+        let stepRunner = makeStepRunner(steps: [step0, step1, step2, step3])
+        var stateChangeCounter = 0
+        stepRunner.state.afterChange.add { change in
+            switch stateChangeCounter {
+            case 0:
+                // Step 0 OpenPageStep
+                assertState(change.newValue, StepRunnerState.inProgress(index: 0))
+            case 1:
+                // Step 1 ProcessStep - this will call .failure
+                assertState(change.newValue, StepRunnerState.inProgress(index: 1))
+            case 2:
+                if case .failure(let error) = change.newValue {
+                    // assert that error is correct
+                    XCTAssertEqual((error as NSError).domain, "StepRunnerTests")
+                    XCTAssertEqual((error as NSError).code, 12345)
+
+                    // assert that model is correct
+                    XCTAssertEqual(stepRunner.model["step1"] as? Int, 123)
+                } else {
+                    XCTFail("state should be failure, but was \(change.newValue)")
+                }
+                exp.fulfill()
+            default:
+                break
+            }
+            stateChangeCounter += 1
+        }
+        stepRunner.run()
         waitForExpectations()
     }
 
@@ -695,6 +761,7 @@ class StepRunnerTests: XCTestCase {
             params: "#paramsSpan") { response, _ in
             XCTAssertEqual(response as? String, "fruit is apple, color is red")
             exp.fulfill()
+            return .proceed
         }
 
         let stepRunner = makeStepRunner(steps: [step1, step2, step3])
@@ -728,6 +795,7 @@ class StepRunnerTests: XCTestCase {
             params: "#paramsSpan") { response, _ in
                 XCTAssertEqual(response as? String, "fruit is apple, color is red")
                 exp.fulfill()
+                return .proceed
         }
 
         let stepRunner = makeStepRunner(steps: [step1, step2, step3, step4])
@@ -748,6 +816,7 @@ class StepRunnerTests: XCTestCase {
         let step2 = AsyncScriptStep(functionName: "getStringAsync") { response, _ in
             XCTAssertEqual(response as? String, "thanks for waiting...hello!")
             exp.fulfill()
+            return .proceed
         }
 
         let stepRunner = makeStepRunner(steps: [step1, step2])
@@ -786,6 +855,7 @@ class StepRunnerTests: XCTestCase {
                 XCTAssertEqual(json["numArr"] as! [Int], [1,2,3])
                 XCTAssertEqual((json["obj"] as! JSON)["foo"] as! String, "bar")
                 exp.fulfill()
+                return .proceed
         })
 
         let stepRunner = makeStepRunner(steps: [step1, step2])
@@ -823,6 +893,7 @@ class StepRunnerTests: XCTestCase {
                 XCTAssertEqual(json["numArr"] as! [Int], [1,2,3])
                 XCTAssertEqual((json["obj"] as! JSON)["foo"] as! String, "bar")
                 exp.fulfill()
+                return .proceed
         })
 
         let stepRunner = makeStepRunner(steps: [step1, step2, step3])

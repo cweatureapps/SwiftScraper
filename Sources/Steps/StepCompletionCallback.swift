@@ -10,6 +10,7 @@ import Foundation
 
 /// Result that indicates what to do next (i.e. control flow instruction)
 /// when a step's `run` method is complete.
+/// This also contains the model which is passed betweeen the steps.
 public enum StepCompletionResult {
     /// Proceed to the next step.
     case proceed(JSON)
