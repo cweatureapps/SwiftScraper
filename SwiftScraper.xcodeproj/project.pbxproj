@@ -14,6 +14,8 @@
 		5B4660BE1EA87A6A005B921F /* SwiftScraper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B4660B41EA87A6A005B921F /* SwiftScraper.framework */; };
 		5B4660C31EA87A6A005B921F /* StepRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4660C21EA87A6A005B921F /* StepRunnerTests.swift */; };
 		5B4660C51EA87A6A005B921F /* SwiftScraper.h in Headers */ = {isa = PBXBuildFile; fileRef = 5B4660B71EA87A6A005B921F /* SwiftScraper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5B9F7AB21EB2AF2B00143CE4 /* waitTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 5B9F7AB01EB2AF2600143CE4 /* waitTest.html */; };
+		5B9F7AB41EB3214D00143CE4 /* WaitForConditionStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9F7AB31EB3214D00143CE4 /* WaitForConditionStep.swift */; };
 		5BC621391EB00BFE00EABB06 /* ProcessStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC621381EB00BFE00EABB06 /* ProcessStep.swift */; };
 		5BC8791F1EAA1AD700230CEA /* Browser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC8791E1EAA1AD700230CEA /* Browser.swift */; };
 		5BC879231EAA1B5800230CEA /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC879221EAA1B5800230CEA /* Result.swift */; };
@@ -58,6 +60,8 @@
 		5B4660BD1EA87A6A005B921F /* SwiftScraperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftScraperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B4660C21EA87A6A005B921F /* StepRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepRunnerTests.swift; sourceTree = "<group>"; };
 		5B4660C41EA87A6A005B921F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5B9F7AB01EB2AF2600143CE4 /* waitTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = waitTest.html; sourceTree = "<group>"; };
+		5B9F7AB31EB3214D00143CE4 /* WaitForConditionStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaitForConditionStep.swift; sourceTree = "<group>"; };
 		5BC621381EB00BFE00EABB06 /* ProcessStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessStep.swift; sourceTree = "<group>"; };
 		5BC8791E1EAA1AD700230CEA /* Browser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Browser.swift; sourceTree = "<group>"; };
 		5BC879221EAA1B5800230CEA /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
@@ -132,13 +136,13 @@
 		5B4660B61EA87A6A005B921F /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				5BC879261EAA1FD100230CEA /* Steps */,
 				5BC8791E1EAA1AD700230CEA /* Browser.swift */,
 				5B4660B81EA87A6A005B921F /* Info.plist */,
 				5BEF8ACD1EAE1982003E2945 /* JavaScriptGenerator.swift */,
 				5B4485481EB212F9008DF5B2 /* JSON.swift */,
 				5BC879221EAA1B5800230CEA /* Result.swift */,
 				5BC879351EAA224C00230CEA /* StepRunner.swift */,
+				5BC879261EAA1FD100230CEA /* Steps */,
 				5B4660B71EA87A6A005B921F /* SwiftScraper.h */,
 				5BC879241EAA1B7600230CEA /* SwiftScraperError.swift */,
 			);
@@ -168,6 +172,7 @@
 				5BC8792F1EAA211B00230CEA /* ScriptStep.swift */,
 				5BC879271EAA1FE500230CEA /* Step.swift */,
 				5B4485461EB2123B008DF5B2 /* StepCompletionCallback.swift */,
+				5B9F7AB31EB3214D00143CE4 /* WaitForConditionStep.swift */,
 				5BC879331EAA21D700230CEA /* WaitStep.swift */,
 			);
 			path = Steps;
@@ -178,6 +183,7 @@
 			children = (
 				5BEF8AC71EAE01CD003E2945 /* page1.html */,
 				5B3B03591EAF3DF70080617F /* page2.html */,
+				5B9F7AB01EB2AF2600143CE4 /* waitTest.html */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
@@ -310,6 +316,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B3B035A1EAF3DF80080617F /* page2.html in Resources */,
+				5B9F7AB21EB2AF2B00143CE4 /* waitTest.html in Resources */,
 				5BEF8AC81EAE01CD003E2945 /* page1.html in Resources */,
 				5BEF8ACA1EAE069F003E2945 /* StepRunnerTests.js in Resources */,
 			);
@@ -404,6 +411,7 @@
 				5BC621391EB00BFE00EABB06 /* ProcessStep.swift in Sources */,
 				5BC879361EAA224C00230CEA /* StepRunner.swift in Sources */,
 				5BC879341EAA21D700230CEA /* WaitStep.swift in Sources */,
+				5B9F7AB41EB3214D00143CE4 /* WaitForConditionStep.swift in Sources */,
 				5BC8792A1EAA1FFD00230CEA /* NavigableStep.swift in Sources */,
 				5BEF8ACF1EAE1A45003E2945 /* JavaScriptGenerator.swift in Sources */,
 				5BC8792C1EAA201E00230CEA /* OpenPageStep.swift in Sources */,

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Wait Test</title>
+    </head>
+    <body>
+        <span id="foo">something</span>
+    <script>
+        setTimeout(function() {
+            document.getElementById('foo').innerHTML = 'modified';
+        }, 500);
+    </script>
+
+    </body>
+</html>

@@ -95,6 +95,140 @@ class StepRunnerTests: XCTestCase {
         waitForExpectations()
     }
 
+    // MARK: - WaitForConditionStep
+
+    func testWaitForConditionStep() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "waitTest"),
+            assertionName: "assertWaitTestTitle")
+
+        let step2 = WaitForConditionStep(
+            assertionName: "testWaitForCondition",
+            timeoutInSeconds: 2)
+
+        let step3 = ScriptStep(functionName: "getInnerText", params: "#foo") { response, _ in
+            XCTAssertEqual(response as? String, "modified")
+        }
+
+        let stepRunner = makeStepRunner(steps: [step1, step2, step3])
+        var stateChangeCounter = 0
+        stepRunner.state.afterChange.add { change in
+            switch stateChangeCounter {
+            case 0...2:
+                assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
+            case 3:
+                assertState(change.newValue, StepRunnerState.success)
+                exp.fulfill()
+            default:
+                break
+            }
+            stateChangeCounter += 1
+        }
+        stepRunner.run()
+        waitForExpectations()
+    }
+
+    func testWaitForConditionStepTimeout() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "waitTest"),
+            assertionName: "assertWaitTestTitle")
+
+        let step2 = WaitForConditionStep(
+            assertionName: "testWaitForCondition",
+            timeoutInSeconds: 0.4)
+
+        let stepRunner = makeStepRunner(steps: [step1, step2])
+        var stateChangeCounter = 0
+        stepRunner.state.afterChange.add { change in
+            switch stateChangeCounter {
+            case 0...1:
+                assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
+            case 2:
+                if case StepRunnerState.failure(error: let error) = change.newValue {
+                    switch error {
+                    case SwiftScraperError.timeout: break  // Pass
+                    default: XCTFail("Expected state to be failed with timeout")
+                    }
+                } else {
+                    XCTFail("Expected state to be failed with timeout")
+                }
+                exp.fulfill()
+            default:
+                break
+            }
+            stateChangeCounter += 1
+        }
+        stepRunner.run()
+        waitForExpectations()
+    }
+
+    func testWaitForConditionStepAssertionFailure() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "waitTest"),
+            assertionName: "assertWaitTestTitle")
+
+        let step2 = WaitForConditionStep(
+            assertionName: "foobarThisWillFail",  // Tests what happens if the assertion fails. This function doesn't exist.
+            timeoutInSeconds: 2)
+
+        let stepRunner = makeStepRunner(steps: [step1, step2])
+        var stateChangeCounter = 0
+        stepRunner.state.afterChange.add { change in
+            switch stateChangeCounter {
+            case 0...1:
+                assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
+            case 2:
+                if case StepRunnerState.failure(error: let error) = change.newValue {
+                    switch error {
+                    case SwiftScraperError.javascriptError: break  // Pass
+                    default: XCTFail("Expected state to be failed with javascriptError")
+                    }
+                } else {
+                    XCTFail("Expected state to be failed with javascriptError")
+                }
+                exp.fulfill()
+            default:
+                break
+            }
+            stateChangeCounter += 1
+        }
+        stepRunner.run()
+        waitForExpectations()
+    }
+
+    func testWaitForConditionStepModelPassing() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "waitTest"),
+            assertionName: "assertWaitTestTitle")
+
+        let step2 = ProcessStep { model in
+            model["foo"] = "bar"
+            return .proceed
+        }
+
+        let step3 = WaitForConditionStep(
+            assertionName: "testWaitForCondition",
+            timeoutInSeconds: 2)
+
+        let stepRunner = makeStepRunner(steps: [step1, step2, step3])
+        stepRunner.state.afterChange.add { change in
+            if case StepRunnerState.success = change.newValue {
+                XCTAssertEqual(stepRunner.model["foo"] as? String, "bar")
+                exp.fulfill()
+            }
+        }
+        stepRunner.run()
+        waitForExpectations()
+    }
+
     // MARK: - ProcessStep
 
     func testProcessStep() {

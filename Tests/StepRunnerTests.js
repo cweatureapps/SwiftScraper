@@ -7,6 +7,10 @@ var StepRunnerTests = (function() {
         return document.title == 'Page 2';
     }
 
+    function assertWaitTestTitle() {
+        return document.title == 'Wait Test';
+    }
+
     function getInnerText(selector) {
         return document.querySelector(selector).innerText;
     }
@@ -73,9 +77,14 @@ var StepRunnerTests = (function() {
         });
     }
 
+    function testWaitForCondition() {
+        return document.getElementById('foo').innerText == 'modified';
+    }
+
     return {
         assertPage1Title: assertPage1Title,
         assertPage2Title: assertPage2Title,
+        assertWaitTestTitle: assertWaitTestTitle,
         getInnerText: getInnerText,
         getString: getString,
         getBooleanTrue: getBooleanTrue,
@@ -88,6 +97,7 @@ var StepRunnerTests = (function() {
         goToPage2: goToPage2,
         goToPage2WithParams: goToPage2WithParams,
         getStringAsync: getStringAsync,
-        multiArgAsync: multiArgAsync
+        multiArgAsync: multiArgAsync,
+        testWaitForCondition: testWaitForCondition
     };
 })();

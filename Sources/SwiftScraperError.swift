@@ -15,6 +15,7 @@ public enum SwiftScraperError: Error, LocalizedError {
     case javascriptError(errorMessage: String)
     case navigationFailed
     case incorrectStep
+    case timeout
 
     public var errorDescription: String? {
         switch self {
@@ -24,6 +25,7 @@ public enum SwiftScraperError: Error, LocalizedError {
         case .javascriptError(let errorMessage): return "A JavaScript error occurred when trying to process the page: \(errorMessage)"
         case .navigationFailed: return "Something went wrong when navigating to the page"
         case .incorrectStep: return "An incorrect step was specified"
+        case .timeout: return "Timeout occurred while waiting for a step to complete"
         }
     }
 }
