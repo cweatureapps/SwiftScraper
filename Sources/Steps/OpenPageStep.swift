@@ -23,10 +23,10 @@ public class OpenPageStep: Step, NavigableStep {
     }
 
     public func run(with browser: Browser, model: JSON, completion: @escaping StepCompletionCallback) {
-        browser.load(path: path) { [weak self] success in
+        browser.load(path: path) { [weak self] result in
             guard let this = self else { return }
-            guard success else {
-                completion(.failure(SwiftScraperError.navigationFailed, model))
+            if case .failure(let error) = result {
+                completion(.failure(error, model))
                 return
             }
             this.assertNavigation(with: browser, model: model, completion: completion)

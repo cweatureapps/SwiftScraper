@@ -58,6 +58,40 @@ class StepRunnerTests: XCTestCase {
         waitForExpectations()
     }
 
+    func testOpenPageStepFailed() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(path: "http://qwerasdfzxcv")
+
+        let stepRunner = makeStepRunner(steps: [step1])
+        var stateChangeCounter = 0
+        stepRunner.state.afterChange.add { change in
+            switch stateChangeCounter {
+            case 0:
+                assertState(change.newValue, StepRunnerState.inProgress(index: 0))
+            case 1:
+                if case StepRunnerState.failure(let error as SwiftScraperError) = change.newValue {
+                    XCTAssertEqual(error.errorDescription, "Something went wrong when navigating to the page")
+                    if case SwiftScraperError.navigationFailed(let innerError as NSError) = error {
+                        XCTAssertEqual(innerError.domain, "NSURLErrorDomain")
+                        XCTAssertEqual(innerError.code, NSURLErrorCannotFindHost)
+                    } else {
+                        XCTFail("Expected that the step should fail with a navigationFailed error")
+                    }
+                } else {
+                    XCTFail("Expected that the step should fail")
+                }
+                exp.fulfill()
+            default:
+                break
+            }
+            stateChangeCounter += 1
+        }
+        stepRunner.run()
+
+        waitForExpectations()
+    }
+
     // MARK: - WaitStep
 
     func testWaitStep() {
@@ -801,6 +835,44 @@ class StepRunnerTests: XCTestCase {
         let stepRunner = makeStepRunner(steps: [step1, step2, step3, step4])
         stepRunner.run()
         
+        waitForExpectations()
+    }
+
+    func testPageChangeStepFailJavaScript() {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            assertionName: "assertPage1Title")
+
+        let step2 = PageChangeStep(functionName: "generateException") // Call JS which has exception
+
+        let stepRunner = makeStepRunner(steps: [step1, step2])
+        var stateChangeCounter = 0
+        stepRunner.state.afterChange.add { change in
+            switch stateChangeCounter {
+            case 0...1:
+                assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
+            case 2:
+                if case StepRunnerState.failure(let error as SwiftScraperError) = change.newValue {
+                    XCTAssertEqual(error.errorDescription, "Something went wrong when navigating to the page")
+                    if case SwiftScraperError.navigationFailed(let innerError as SwiftScraperError) = error,
+                        case SwiftScraperError.javascriptError(let errorMessage) = innerError {
+                        XCTAssertEqual(errorMessage, "JavaScript exception thrown")
+                    } else {
+                        XCTFail("Expected that the step should fail with a navigationFailed error")
+                    }
+                } else {
+                    XCTFail("Expected that the step should fail")
+                }
+                exp.fulfill()
+            default:
+                break
+            }
+            stateChangeCounter += 1
+        }
+        stepRunner.run()
+
         waitForExpectations()
     }
 

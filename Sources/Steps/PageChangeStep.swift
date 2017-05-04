@@ -41,10 +41,10 @@ public class PageChangeStep: Step, NavigableStep {
         } else {
             params = paramsKeys.map { model[$0] ?? NSNull() }
         }
-        browser.runPageChangeScript(functionName: functionName, params: params) { [weak self] success in
+        browser.runPageChangeScript(functionName: functionName, params: params) { [weak self] result in
             guard let this = self else { return }
-            guard success else {
-                completion(.failure(SwiftScraperError.navigationFailed, model))
+            if case .failure(let error) = result {
+                completion(.failure(error, model))
                 return
             }
             this.assertNavigation(with: browser, model: model, completion: completion)

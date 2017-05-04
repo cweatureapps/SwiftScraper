@@ -11,8 +11,11 @@ import WebKit
 
 // MARK: - Types
 
+/// The result of the browser navigation.
+typealias NavigationResult = Result<Void, SwiftScraperError>
+
 /// Invoked when the page navigation has completed or failed.
-typealias NavigationCallback = (Bool) -> Void
+typealias NavigationCallback = (_ result: NavigationResult) -> Void
 
 /// The result of some JavaScript execution.
 ///
@@ -98,26 +101,32 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         print("didFinishNavigation was called")
-        callNavigationCompletion(true)
+        callNavigationCompletion(result: .success())
     }
 
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         print("didFailProvisionalNavigation")
-        callNavigationCompletion(false)
+        let navigationError = SwiftScraperError.navigationFailed(error: error)
+        callNavigationCompletion(result: .failure(navigationError))
     }
 
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         print("didFailNavigation was called")
-        callNavigationCompletion(false)
+        let nsError = error as NSError
+        if nsError.domain == "NSURLErrorDomain" && nsError.code == NSURLErrorCancelled {
+            return
+        }
+        let navigationError = SwiftScraperError.navigationFailed(error: error)
+        callNavigationCompletion(result: .failure(navigationError))
     }
 
-    private func callNavigationCompletion(_ success: Bool) {
+    private func callNavigationCompletion(result: NavigationResult) {
         guard let navigationCompletion = self.navigationCallback else { return }
         // Make a local copy of closure before setting to nil, to due async nature of this,
         // there is a timing issue if simply setting to nil after calling the completion.
         // This is because the completion is the code that triggers the next step.
         self.navigationCallback = nil
-        navigationCompletion(success)
+        navigationCompletion(result)
     }
 
     // MARK: - WKScriptMessageHandler
@@ -186,8 +195,9 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     func runPageChangeScript(functionName: String, params: [Any] = [], completion: @escaping NavigationCallback) {
         self.navigationCallback = completion
         runScript(functionName: functionName, params: params) { result in
-            if case .failure = result {
-                completion(false)
+            if case .failure(let error) = result {
+                let navigationError = SwiftScraperError.navigationFailed(error: error)
+                completion(.failure(navigationError))
                 self.navigationCallback = nil
             }
         }

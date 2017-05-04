@@ -81,6 +81,10 @@ var StepRunnerTests = (function() {
         return document.getElementById('foo').innerText == 'modified';
     }
 
+    function generateException() {
+        throw "JavaScript exception thrown"
+    }
+
     return {
         assertPage1Title: assertPage1Title,
         assertPage2Title: assertPage2Title,
@@ -98,6 +102,7 @@ var StepRunnerTests = (function() {
         goToPage2WithParams: goToPage2WithParams,
         getStringAsync: getStringAsync,
         multiArgAsync: multiArgAsync,
-        testWaitForCondition: testWaitForCondition
+        testWaitForCondition: testWaitForCondition,
+        generateException, generateException
     };
 })();
