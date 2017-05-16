@@ -31,7 +31,7 @@ struct JavaScriptGenerator {
             return "null"
         } else if JSONSerialization.isValidJSONObject(param),
             let prettyJsonData = try? JSONSerialization.data(withJSONObject: param, options: []),
-            let jsonString = NSString(data: prettyJsonData, encoding: String.Encoding.utf8.rawValue) as? String {
+            let jsonString = NSString(data: prettyJsonData, encoding: String.Encoding.utf8.rawValue) as String? {
             return jsonString
         }
         throw SwiftScraperError.parameterSerialization

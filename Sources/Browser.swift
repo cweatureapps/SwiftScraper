@@ -174,7 +174,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         }
         print("script to run:", script)
         webView.evaluateJavaScript(script) { response, error in
-            if let nsError = error as? NSError,
+            if let nsError = error as NSError?,
                 nsError.domain == WKError.errorDomain,
                 nsError.code == WKError.Code.javaScriptExceptionOccurred.rawValue {
                 let jsErrorMessage = nsError.userInfo["WKJavaScriptExceptionMessage"] as? String ?? nsError.localizedDescription
