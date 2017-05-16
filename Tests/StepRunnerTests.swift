@@ -74,7 +74,10 @@ class StepRunnerTests: XCTestCase {
                     XCTAssertEqual(error.errorDescription, "Something went wrong when navigating to the page")
                     if case SwiftScraperError.navigationFailed(let innerError as NSError) = error {
                         XCTAssertEqual(innerError.domain, "NSURLErrorDomain")
-                        XCTAssertEqual(innerError.code, NSURLErrorCannotFindHost)
+                        let codeMatches = innerError.code == NSURLErrorCannotFindHost ||
+                            innerError.code == NSURLErrorNotConnectedToInternet
+                        XCTAssertTrue(codeMatches, "Error should be cannot find host, or an internet connection error if there is no internet")
+
                     } else {
                         XCTFail("Expected that the step should fail with a navigationFailed error")
                     }
