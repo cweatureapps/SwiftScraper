@@ -196,8 +196,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         self.navigationCallback = completion
         runScript(functionName: functionName, params: params) { result in
             if case .failure(let error) = result {
-                let navigationError = SwiftScraperError.navigationFailed(error: error)
-                completion(.failure(navigationError))
+                completion(.failure(error))
                 self.navigationCallback = nil
             }
         }

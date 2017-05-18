@@ -858,12 +858,10 @@ class StepRunnerTests: XCTestCase {
                 assertState(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 2:
                 if case StepRunnerState.failure(let error as SwiftScraperError) = change.newValue {
-                    XCTAssertEqual(error.errorDescription, "Something went wrong when navigating to the page")
-                    if case SwiftScraperError.navigationFailed(let innerError as SwiftScraperError) = error,
-                        case SwiftScraperError.javascriptError(let errorMessage) = innerError {
+                    if case SwiftScraperError.javascriptError(let errorMessage) = error {
                         XCTAssertEqual(errorMessage, "JavaScript exception thrown")
                     } else {
-                        XCTFail("Expected that the step should fail with a navigationFailed error")
+                        XCTFail("Expected that the step should fail with a javascriptError")
                     }
                 } else {
                     XCTFail("Expected that the step should fail")
