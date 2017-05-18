@@ -14,6 +14,17 @@ This framework provides a simple way to declaratively define a series of steps i
 * Passing data between steps
 * Control flow to determine which step to run next, allowing basic conditionals and loops
 
+# Example
+
+If you want to read the finished code example straight away:
+
+* [Swift code that performs a google text search](https://github.com/cweatureapps/SwiftScraper/blob/master/Example/SwiftScraperExample/TutorialViewController.swift)
+* [Swift code that performs a google image search, and scrolls to count all images](https://github.com/cweatureapps/SwiftScraper/blob/master/Example/SwiftScraperExample/AdvancedTutorialViewController.swift)
+* [The Javascript used in the above examples](https://github.com/cweatureapps/SwiftScraper/blob/master/Example/SwiftScraperExample/GoogleSearch.js)
+
+For a step by step guide on how to implement these, read the next two sections.
+
+
 # Tutorial
 
 In this tutorial, we'll cover the basic usage of this framework by performing a search on the google web site.
