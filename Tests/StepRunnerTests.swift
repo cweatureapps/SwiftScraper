@@ -974,6 +974,69 @@ class StepRunnerTests: XCTestCase {
         
         waitForExpectations()
     }
+
+    // MARK: - Reusing Step Runner
+
+    func testReuse() {
+        let exp = expectation(description: #function)
+
+        // Arrange - load a screen and modify the heading
+
+        let step1 = OpenPageStep(
+            path: path(for: "page1"),
+            assertionName: "assertPage1Title")
+
+        let step2 = ScriptStep(functionName: "getInnerText", params: "h1") { response, _ in
+            XCTAssertEqual(response as? String, "Hello world!")
+            return .proceed
+        }
+
+        let step3 = ScriptStep(functionName: "modifyPage1Heading", params: "heading changed") { _, _ in .proceed }
+
+        let step4 = ScriptStep(functionName: "getInnerText", params: "h1") { response, _ in
+            XCTAssertEqual(response as? String, "heading changed")
+            exp.fulfill()
+            return .proceed
+        }
+
+        let stepRunner = makeStepRunner(steps: [step1, step2, step3, step4])
+        stepRunner.run()
+
+        waitForExpectations()
+
+        // Act and Assert - process more steps on a step runner that has finished executing
+
+        let exp2 = expectation(description: #function + "2")
+
+        let step5 = ScriptStep(functionName: "getInnerText", params: "h1") { response, _ in
+            XCTAssertEqual(response as? String, "heading changed", "Browser should retain the existing state of the web page")
+            return .proceed
+        }
+
+        let step6 = ScriptStep(functionName: "modifyPage1Heading", params: "changing the heading again") { _, _ in .proceed }
+
+        let step7 = ScriptStep(functionName: "getInnerText", params: "h1") { response, _ in
+            XCTAssertEqual(response as? String, "changing the heading again")
+            exp2.fulfill()
+            return .proceed
+        }
+
+        var stepRunnerStates: [StepRunnerState] = []
+        stepRunner.state.afterChange.add { change in
+            stepRunnerStates.append(change.newValue)
+        }
+
+        stepRunner.run(steps: [step5, step6, step7])
+
+        waitForExpectations()
+
+        XCTAssertEqual(stepRunnerStates.count, 5)
+        assertState(stepRunnerStates[0], .notStarted)
+        assertState(stepRunnerStates[1], .inProgress(index: 0))
+        assertState(stepRunnerStates[2], .inProgress(index: 1))
+        assertState(stepRunnerStates[3], .inProgress(index: 2))
+        assertState(stepRunnerStates[4], .success)
+    }
 }
 
 /// Assert that the two given states are equal.

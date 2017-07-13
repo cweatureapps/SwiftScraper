@@ -82,7 +82,11 @@ var StepRunnerTests = (function() {
     }
 
     function generateException() {
-        throw "JavaScript exception thrown"
+        throw "JavaScript exception thrown";
+    }
+
+    function modifyPage1Heading(text) {
+        document.querySelector('h1').innerText = text;
     }
 
     return {
@@ -103,6 +107,7 @@ var StepRunnerTests = (function() {
         getStringAsync: getStringAsync,
         multiArgAsync: multiArgAsync,
         testWaitForCondition: testWaitForCondition,
-        generateException, generateException
+        generateException: generateException,
+        modifyPage1Heading: modifyPage1Heading
     };
 })();

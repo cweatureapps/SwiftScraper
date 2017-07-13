@@ -105,6 +105,16 @@ public class StepRunner {
         }
     }
 
+    /// Resets the existing StepRunner and execute the given steps in the existing browser.
+    ///
+    /// Use this to perform more steps on a StepRunner which has previously finished processing.
+    public func run(steps: [Step]) {
+        state ^= .notStarted
+        self.steps = steps
+        index = 0
+        run()
+    }
+
     /// Insert the WebView used for scraping at index 0 of the given parent view, using AutoLayout to pin all 4 sides to the parent.
     ///
     /// Useful if the app would like to see the scraping in the foreground.
