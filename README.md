@@ -1,10 +1,12 @@
 # SwiftScraper
 
+![](https://api.travis-ci.org/cweatureapps/SwiftScraper.svg?branch=master)
+
 Web scraping library for Swift.
 
 # Overview
 
-This framework provides a simple way to declaratively define a series of steps in Swift that represent how to scrape a web site, allowing the app to read this web page data. 
+This framework provides a simple way to declaratively define a series of steps in Swift that represent how to scrape a web site, allowing the app to read this web page data.
 
 # Features
 
@@ -113,7 +115,7 @@ let step1 = OpenPageStep(
 
 ## Observe progress of the run
 
-You can observe the progress of the execution by observing the `state` property of the StepRunner object. 
+You can observe the progress of the execution by observing the `state` property of the StepRunner object.
 
 ```swift
     stepRunner.state.afterChange.add { change in
@@ -322,7 +324,7 @@ let step3 = AsyncScriptStep(functionName: "scrollAndCountImages") { response, mo
 
 The return value is an enum which can be used for rudimentary control flow. We've seen `.proceed` which means to go to the next step. The `.jumpToStep(n)` allows you to jump to another step, either before or after the current step. This allows you to define loops (by jumping back) as well as conditionals (by jumping forward).
 
-Let's continue the infinite scrolling image search example, and add a `ProcessStep` that will keep looping back to `step3` until the before count and after count are the same, meaning there are no more images on the page to load. 
+Let's continue the infinite scrolling image search example, and add a `ProcessStep` that will keep looping back to `step3` until the before count and after count are the same, meaning there are no more images on the page to load.
 
 Add this step as the last step to run. When you run this, you should see the screen keep scrolling down until no more images can be found.
 
@@ -382,6 +384,7 @@ The quick workaround is to disable ATS by putting the following setting in your 
 However, at some point in the future, Apple may require that all apps submitted to the App Store support ATS.
 
 For more information, see the following links:
+
 * [https://forums.developer.apple.com/thread/6767](https://forums.developer.apple.com/thread/6767)
 * [https://developer.apple.com/news/?id=12212016b](https://developer.apple.com/news/?id=12212016b)
 * [https://developer.apple.com/videos/play/wwdc2016/706/](https://developer.apple.com/news/?id=12212016b)
