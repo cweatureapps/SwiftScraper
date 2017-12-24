@@ -101,7 +101,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         print("didFinishNavigation was called")
-        callNavigationCompletion(result: .success())
+        callNavigationCompletion(result: .success(()))
     }
 
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
