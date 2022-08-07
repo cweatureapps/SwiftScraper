@@ -63,7 +63,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     private func setupWebView(moduleName: String, customUserAgent: String?, scriptBundle: Bundle) {
 
-        let coreScriptURL = moduleResourceBundle().path(forResource: Constants.coreScript, ofType: "js")
+        let coreScriptURL = Bundle.module.path(forResource: Constants.coreScript, ofType: "js")
         let coreScriptContent = try! String(contentsOfFile: coreScriptURL!)
         let coreScript = WKUserScript(source: coreScriptContent, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         userContentController.addUserScript(coreScript)
@@ -82,17 +82,6 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         webView.navigationDelegate = self
         webView.allowsBackForwardNavigationGestures = true
         webView.customUserAgent = customUserAgent
-    }
-
-    /// Returns the resource bundle for this Pod where all the resources are kept, 
-    /// or defaulting to the framework module bundle (e.g. when running unit tests).
-    private func moduleResourceBundle() -> Bundle {
-        let moduleBundle = Bundle(for: Browser.self)
-        guard let resourcesBundleURL = moduleBundle.url(forResource: "SwiftScraper", withExtension: ".bundle"),
-            let resourcesBundle = Bundle(url: resourcesBundleURL) else {
-            return moduleBundle
-        }
-        return resourcesBundle
     }
 
     // MARK: - WKNavigationDelegate
