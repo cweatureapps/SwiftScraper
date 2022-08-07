@@ -131,8 +131,12 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     /// Insert the WebView at index 0 of the given parent view,
     /// using AutoLayout to pin all 4 sides to the parent.
-    func insertIntoView(parent: UIView) {
+    func insertIntoView(parent: PlatformView) {
+        #if canImport(UIKit)
         parent.insertSubview(webView, at: 0)
+        #else
+        parent.addSubview(webView)
+        #endif
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.topAnchor.constraint(equalTo: parent.topAnchor).isActive = true
         webView.bottomAnchor.constraint(equalTo: parent.bottomAnchor).isActive = true

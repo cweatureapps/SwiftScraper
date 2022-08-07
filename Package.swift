@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "SwiftScraper",
-    platforms: [.iOS(.v9)],
+    platforms: [.iOS(.v9), .macOS(.v10_11)],
     products: [
         .library(
             name: "SwiftScraper",
@@ -22,6 +22,6 @@ let package = Package(
         .testTarget(
             name: "SwiftScraperTests",
             dependencies: ["SwiftScraper"]
-        ),
+        )
     ]
 )

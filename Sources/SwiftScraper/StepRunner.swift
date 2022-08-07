@@ -8,7 +8,17 @@
 
 import Foundation
 import Observable
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
+
+#if canImport(UIKit)
+public typealias PlatformView = UIView
+#else
+public typealias PlatformView = NSView
+#endif
 
 // MARK: - StepRunnerState
 
@@ -119,7 +129,7 @@ public class StepRunner {
     /// Insert the WebView used for scraping at index 0 of the given parent view, using AutoLayout to pin all 4 sides to the parent.
     ///
     /// Useful if the app would like to see the scraping in the foreground.
-    public func insertWebViewIntoView(parent: UIView) {
+    public func insertWebViewIntoView(parent: PlatformView) {
         browser.insertIntoView(parent: parent)
     }
 }
