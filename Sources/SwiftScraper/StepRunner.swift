@@ -20,6 +20,9 @@ public typealias PlatformView = UIView
 public typealias PlatformView = NSView
 #endif
 
+/// JSON dictionary.
+public typealias JSON = [String: Any]
+
 // MARK: - StepRunnerState
 
 /// Indicates the progress and status of the `StepRunner`.
