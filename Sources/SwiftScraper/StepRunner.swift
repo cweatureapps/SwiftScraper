@@ -105,14 +105,14 @@ public class StepRunner {
     ///
     /// - parameter moduleName: The name of the JavaScript module which has your customer functions.
     ///   By convention, the filename of the JavaScript file is the same as the module name.
+    /// - parameter steps: The steps to run in the pipeline.
     /// - parameter scriptBundle: The bundle from which to load the JavaScript file. Defaults to the main bundle.
     /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+).
-    /// - parameter steps: The steps to run in the pipeline.
-    public init( // swiftlint:disable:this function_default_parameter_at_end
+    public init(
         moduleName: String,
+        steps: [Step],
         scriptBundle: Bundle = Bundle.main,
         customUserAgent: String? = nil,
-        steps: [Step],
         completion: (() -> Void)? = nil
     ) throws {
         browser = try Browser(moduleName: moduleName, scriptBundle: scriptBundle, customUserAgent: customUserAgent)
