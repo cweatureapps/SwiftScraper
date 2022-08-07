@@ -78,6 +78,15 @@ public class StepRunner {
                     observer(state)
                 }
             }
+            switch state {
+            case .success, .failure:
+                if let completionHandler = completion {
+                    completionHandler()
+                    completion = nil
+                }
+            default:
+                break
+            }
         }
     }
 
@@ -89,6 +98,7 @@ public class StepRunner {
     private let browser: Browser
     private var steps: [Step]
     private var index = 0
+    private var completion: (() -> Void)?
 
     /// Initializer to create the `StepRunner`.
     ///
@@ -101,14 +111,19 @@ public class StepRunner {
         moduleName: String,
         scriptBundle: Bundle = Bundle.main,
         customUserAgent: String? = nil,
-        steps: [Step]
+        steps: [Step],
+        completion: (() -> Void)? = nil
     ) throws {
         browser = try Browser(moduleName: moduleName, scriptBundle: scriptBundle, customUserAgent: customUserAgent)
         self.steps = steps
+        self.completion = completion
     }
 
     /// Execute the steps.
-    public func run() {
+    public func run(completion: (() -> Void)? = nil) {
+        if let completion = completion {
+            self.completion = completion
+        }
         guard index < steps.count else {
             state = .failure(error: SwiftScraperError.incorrectStep)
             return
