@@ -16,6 +16,18 @@ class JavaScriptGeneratorTests: XCTestCase {
         XCTAssertEqual(script, "MyModule.doSomething()")
     }
 
+    func testInvalidArg() {
+        XCTAssertThrowsError(try JavaScriptGenerator.generateScript(moduleName: "MyModule",
+                                                                    functionName: "doSomething",
+                                                                    params: [SwiftScraperError.timeout])) {
+            if case .parameterSerialization = $0 as? SwiftScraperError {
+                // Pass
+            } else {
+                XCTFail("Expected parameterSerialization error")
+            }
+        }
+    }
+
     func testGenerateNullArg() {
         let script = try? JavaScriptGenerator.generateScript(moduleName: "MyModule",
                                                              functionName: "doSomething",

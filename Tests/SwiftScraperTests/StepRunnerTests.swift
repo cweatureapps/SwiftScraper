@@ -71,6 +71,48 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
         assertStates([.inProgress(index: 0), .success])
     }
 
+    func testOpenPageStepWithoutAssertion() throws {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(path: Bundle.module.url(forResource: "page1", withExtension: "html")!.absoluteString)
+
+        let step2 = ScriptStep(functionName: "assertPage1Title") { response, _ in
+            XCTAssertEqual(response as? Bool, true)
+            exp.fulfill()
+            return .proceed
+        }
+
+        let stepRunner = try makeStepRunner(steps: [step1, step2])
+        stepRunner.run()
+        waitForExpectations()
+
+        assertStates([.inProgress(index: 0), .inProgress(index: 1), .success])
+    }
+
+    func testOpenPageAssertionFailed() throws {
+        let exp = expectation(description: #function)
+
+        let step1 = OpenPageStep(path: Bundle.module.url(forResource: "page1", withExtension: "html")!.absoluteString,
+                                 assertionName: "assertPage2Title")
+
+        let stepRunner = try makeStepRunner(steps: [step1])
+        stepRunner.run {
+            exp.fulfill()
+        }
+        waitForExpectations()
+
+        assertStates([.inProgress(index: 0), .failure(error: error)])
+        if case StepRunnerState.failure(let error as SwiftScraperError) = stepRunner.state {
+            if case SwiftScraperError.contentUnexpected = error {
+               // Pass
+            } else {
+                XCTFail("Expected that the step should fail with a contentUnexpected error")
+            }
+        } else {
+            XCTFail("Expected that the step should fail")
+        }
+    }
+
     func testOpenPageStepFailed() throws {
         let exp = expectation(description: #function)
 
@@ -319,6 +361,32 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
         XCTAssertEqual(stepRunner.model["step4"] as? Int, 345)
     }
 
+    func testProcessStepSkipToInvalidStep() throws {
+        let exp = expectation(description: #function)
+
+        let step2 = ProcessStep { model in
+            model["step2"] = 123
+            return .jumpToStep(4)
+        }
+        let stepRunner = try makeStepRunner(steps: [openPageOneStep, step2, doNotExecuteStep, doNotExecuteStep])
+        stepRunner.run {
+            exp.fulfill()
+        }
+        waitForExpectations()
+
+        assertStates([.inProgress(index: 0), .inProgress(index: 1), .failure(error: error)])
+        XCTAssertEqual(stepRunner.model["step2"] as? Int, 123)
+        if case StepRunnerState.failure(let error as SwiftScraperError) = stepRunner.state {
+            if case SwiftScraperError.incorrectStep = error {
+               // Pass
+            } else {
+                XCTFail("Expected that the step should fail with a incorrectStep error")
+            }
+        } else {
+            XCTFail("Expected that the step should fail")
+        }
+    }
+
     func testProcessStepSkipStepToLoop() throws {
         var counter1 = 0
         var counter2 = 0
@@ -486,11 +554,36 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
         waitForExpectations()
     }
 
+    func testScriptStepFailed() throws {
+        let exp = expectation(description: #function)
+
+        let step2 = ScriptStep(functionName: "foobarThisWillFail") { _, _ in
+            XCTFail("Should not call handler if script fails")
+            return .proceed
+        }
+
+        let stepRunner = try makeStepRunner(steps: [openPageOneStep, step2, doNotExecuteStep, doNotExecuteStep])
+        stepRunner.run {
+            exp.fulfill()
+        }
+        waitForExpectations()
+
+        assertStates([.inProgress(index: 0), .inProgress(index: 1), .failure(error: error)])
+        if case .failure(let errorObject) = stepRunner.state, let error = errorObject as? SwiftScraperError {
+            if case .javascriptError(let errorMessage) = error {
+                XCTAssert(errorMessage.contains("TypeError: StepRunnerTests.foobarThisWillFail is not a function."))
+            } else {
+                XCTFail("error should javascriptError, but is \(error)")
+            }
+        } else {
+            XCTFail("state should be failure, but was \(stepRunner.state)")
+        }
+    }
+
     func testScriptStepFailEarly() throws {
         let exp = expectation(description: #function)
 
-        let step2 = ScriptStep(
-            functionName: "getString") { _, model in
+        let step2 = ScriptStep(functionName: "getString") { _, model in
                 model["step2"] = 123
                 let error = NSError(domain: "StepRunnerTests", code: 12_345, userInfo: nil)
                 exp.fulfill()
