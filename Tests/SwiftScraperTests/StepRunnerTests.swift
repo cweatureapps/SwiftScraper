@@ -20,13 +20,13 @@ class StepRunnerTests: XCTestCase {
     }
 
     func path(for filename: String) -> String {
-        return Bundle(for: StepRunnerTests.self).url(forResource: filename, withExtension: "html")!.absoluteString
+        return Bundle.module.url(forResource: filename, withExtension: "html")!.absoluteString
     }
 
     func makeStepRunner(steps: [Step]) -> StepRunner {
         return StepRunner(
             moduleName: "StepRunnerTests",
-            scriptBundle: Bundle(for: StepRunnerTests.self),
+            scriptBundle: Bundle.module,
             steps: steps)
     }
 

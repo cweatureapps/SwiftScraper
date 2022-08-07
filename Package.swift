@@ -21,7 +21,13 @@ let package = Package(
         ),
         .testTarget(
             name: "SwiftScraperTests",
-            dependencies: ["SwiftScraper"]
+            dependencies: ["SwiftScraper"],
+            resources: [
+                .process("Resources/page1.html"),
+                .process("Resources/page2.html"),
+                .process("Resources/waitTest.html"),
+                .process("StepRunnerTests.js")
+            ]
         )
     ]
 )
