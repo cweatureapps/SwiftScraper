@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Observable
 #if canImport(UIKit)
 import UIKit
 #else
@@ -72,7 +71,17 @@ public func != (lhs: StepRunnerState, rhs: StepRunnerState) -> Bool {
 public class StepRunner {
 
     /// The observable state which indicates the progress and status.
-    public private(set) var state: Observable<StepRunnerState> = Observable(.notStarted)
+    public private(set) var state: StepRunnerState = .notStarted {
+        didSet {
+            if state != oldValue {
+                for observer in stateObservers {
+                    observer(state)
+                }
+            }
+        }
+    }
+
+    public var stateObservers: [(StepRunnerState) -> Void] = []
 
     /// A model dictionary which can be used to pass data from step to step.
     public private(set) var model: JSON = [:]
@@ -101,11 +110,11 @@ public class StepRunner {
     /// Execute the steps.
     public func run() {
         guard index < steps.count else {
-            state ^= .failure(error: SwiftScraperError.incorrectStep)
+            state = .failure(error: SwiftScraperError.incorrectStep)
             return
         }
         let stepToExecute = steps[index]
-        state ^= .inProgress(index: index)
+        state = .inProgress(index: index)
         stepToExecute.run(with: browser, model: model) { [weak self] result in
             guard let this = self else {
                 return
@@ -113,11 +122,11 @@ public class StepRunner {
             this.model = result.model
             switch result {
             case .finish:
-                this.state ^= .success
+                this.state = .success
             case .proceed:
                 this.index += 1
                 guard this.index < this.steps.count else {
-                    this.state ^= .success
+                    this.state = .success
                     return
                 }
                 this.run()
@@ -125,7 +134,7 @@ public class StepRunner {
                 this.index = nextStep
                 this.run()
             case .failure(let error, _):
-                this.state ^= .failure(error: error)
+                this.state = .failure(error: error)
             }
         }
     }
@@ -134,7 +143,7 @@ public class StepRunner {
     ///
     /// Use this to perform more steps on a StepRunner which has previously finished processing.
     public func run(steps: [Step]) {
-        state ^= .notStarted
+        state = .notStarted
         self.steps = steps
         index = 0
         run()

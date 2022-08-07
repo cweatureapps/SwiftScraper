@@ -11,12 +11,11 @@ let package = Package(
             targets: ["SwiftScraper"])
     ],
     dependencies: [
-        .package(path: "../Observable")
     ],
     targets: [
         .target(
             name: "SwiftScraper",
-            dependencies: ["Observable"],
+            dependencies: [],
             resources: [.process("Resources/SwiftScraper.js")]
         ),
         .testTarget(

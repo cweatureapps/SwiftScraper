@@ -31,8 +31,8 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
 
     private func makeStepRunner(steps: [Step]) throws -> StepRunner {
         let runner = try StepRunner(moduleName: "StepRunnerTests", scriptBundle: Bundle.module, steps: steps)
-        runner.state.afterChange.add { change in
-            self.stepRunnerStates.append(change.newValue)
+        runner.stateObservers.append { newValue in
+            self.stepRunnerStates.append(newValue)
         }
         return runner
     }
@@ -64,12 +64,12 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
         let exp = expectation(description: #function)
         let stepRunner = try makeStepRunner(steps: [openPageOneStep])
         var stateChangeCounter = 0
-        stepRunner.state.afterChange.add { change in
+        stepRunner.stateObservers.append { newValue in
             switch stateChangeCounter {
             case 0:
-                XCTAssertEqual(change.newValue, StepRunnerState.inProgress(index: 0))
+                XCTAssertEqual(newValue, StepRunnerState.inProgress(index: 0))
             case 1:
-                XCTAssertEqual(change.newValue, StepRunnerState.success)
+                XCTAssertEqual(newValue, StepRunnerState.success)
                 exp.fulfill()
             default:
                 XCTFail("Too many state changes")
@@ -88,12 +88,12 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
 
         let stepRunner = try makeStepRunner(steps: [step1])
         var stateChangeCounter = 0
-        stepRunner.state.afterChange.add { change in
+        stepRunner.stateObservers.append { newValue in
             switch stateChangeCounter {
             case 0:
-                XCTAssertEqual(change.newValue, StepRunnerState.inProgress(index: 0))
+                XCTAssertEqual(newValue, StepRunnerState.inProgress(index: 0))
             case 1:
-                if case StepRunnerState.failure(let error as SwiftScraperError) = change.newValue {
+                if case StepRunnerState.failure(let error as SwiftScraperError) = newValue {
                     XCTAssertEqual(error.errorDescription, "Something went wrong when navigating to the page")
                     if case SwiftScraperError.navigationFailed(let innerError as NSError) = error {
                         XCTAssertEqual(innerError.domain, "NSURLErrorDomain")
@@ -129,15 +129,15 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
 
         let stepRunner = try makeStepRunner(steps: [openPageOneStep, step2])
         var stateChangeCounter = 0
-        stepRunner.state.afterChange.add { change in
+        stepRunner.stateObservers.append { newValue in
             switch stateChangeCounter {
             case 0:
-                XCTAssertEqual(change.newValue, StepRunnerState.inProgress(index: 0))
+                XCTAssertEqual(newValue, StepRunnerState.inProgress(index: 0))
             case 1:
-                XCTAssertEqual(change.newValue, StepRunnerState.inProgress(index: 1))
+                XCTAssertEqual(newValue, StepRunnerState.inProgress(index: 1))
                 startDate = Date()
             case 2:
-                XCTAssertEqual(change.newValue, StepRunnerState.success)
+                XCTAssertEqual(newValue, StepRunnerState.success)
                 let endDate = Date()
                 XCTAssertTrue(endDate.timeIntervalSince(startDate) > 0.49)
                 exp.fulfill()
@@ -180,12 +180,12 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
 
         let stepRunner = try makeStepRunner(steps: [openWaitPageStep, step2])
         var stateChangeCounter = 0
-        stepRunner.state.afterChange.add { change in
+        stepRunner.stateObservers.append { newValue in
             switch stateChangeCounter {
             case 0...1:
-                XCTAssertEqual(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
+                XCTAssertEqual(newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 2:
-                if case StepRunnerState.failure(error: let error) = change.newValue {
+                if case StepRunnerState.failure(error: let error) = newValue {
                     switch error {
                     case SwiftScraperError.timeout:
                         break  // Pass
@@ -215,12 +215,12 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
 
         let stepRunner = try makeStepRunner(steps: [openWaitPageStep, step2])
         var stateChangeCounter = 0
-        stepRunner.state.afterChange.add { change in
+        stepRunner.stateObservers.append { newValue in
             switch stateChangeCounter {
             case 0...1:
-                XCTAssertEqual(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
+                XCTAssertEqual(newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 2:
-                if case StepRunnerState.failure(error: let error) = change.newValue {
+                if case StepRunnerState.failure(error: let error) = newValue {
                     switch error {
                     case SwiftScraperError.javascriptError:
                         break  // Pass
@@ -251,8 +251,8 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
         let step3 = WaitForConditionStep(assertionName: "testWaitForCondition", timeoutInSeconds: 2)
 
         let stepRunner = try makeStepRunner(steps: [openWaitPageStep, step2, step3])
-        stepRunner.state.afterChange.add { change in
-            if case StepRunnerState.success = change.newValue {
+        stepRunner.stateObservers.append { newValue in
+            if case StepRunnerState.success = newValue {
                 XCTAssertEqual(stepRunner.model["foo"] as? String, "bar")
                 exp.fulfill()
             }
@@ -324,7 +324,7 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
 
         assertStates([.inProgress(index: 0), .inProgress(index: 1), .failure(error: error)])
 
-        if case .failure(let error) = stepRunner.state.value {
+        if case .failure(let error) = stepRunner.state {
             // assert that error is correct
             XCTAssertEqual((error as NSError).domain, "StepRunnerTests")
             XCTAssertEqual((error as NSError).code, 12_345)
@@ -382,8 +382,8 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
         }
 
         let stepRunner = try makeStepRunner(steps: [openPageOneStep, step2, step3])
-        stepRunner.state.afterChange.add { change in
-            if change.newValue == .success {
+        stepRunner.stateObservers.append { newValue in
+            if newValue == .success {
                 // assert that the steps are called the correct number of times
                 XCTAssertEqual(counter1, 3)
                 XCTAssertEqual(counter2, 3)
@@ -549,7 +549,7 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
 
         assertStates([.inProgress(index: 0), .inProgress(index: 1), .failure(error: error)])
 
-        if case .failure(let error) = stepRunner.state.value {
+        if case .failure(let error) = stepRunner.state {
             // assert that error is correct
             XCTAssertEqual((error as NSError).domain, "StepRunnerTests")
             XCTAssertEqual((error as NSError).code, 12_345)
@@ -557,7 +557,7 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
             // assert that model is correct
             XCTAssertEqual(stepRunner.model["step2"] as? Int, 123)
         } else {
-            XCTFail("state should be failure, but was \(stepRunner.state.value)")
+            XCTFail("state should be failure, but was \(stepRunner.state)")
         }
     }
 
@@ -571,12 +571,12 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
         let stepRunner = try makeStepRunner(steps: [openPageOneStep, step2])
 
         var stateChangeCounter = 0
-        stepRunner.state.afterChange.add { change in
+        stepRunner.stateObservers.append { newValue in
             switch stateChangeCounter {
             case 0...1:
-                XCTAssertEqual(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
+                XCTAssertEqual(newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 2:
-                XCTAssertEqual(change.newValue, StepRunnerState.success)
+                XCTAssertEqual(newValue, StepRunnerState.success)
                 exp.fulfill()
             default:
                 XCTFail("Too many state changes")
@@ -650,12 +650,12 @@ class StepRunnerTests: XCTestCase { // swiftlint:disable:this type_body_length
 
         let stepRunner = try makeStepRunner(steps: [openPageOneStep, step2])
         var stateChangeCounter = 0
-        stepRunner.state.afterChange.add { change in
+        stepRunner.stateObservers.append { newValue in
             switch stateChangeCounter {
             case 0...1:
-                XCTAssertEqual(change.newValue, StepRunnerState.inProgress(index: stateChangeCounter))
+                XCTAssertEqual(newValue, StepRunnerState.inProgress(index: stateChangeCounter))
             case 2:
-                if case StepRunnerState.failure(let error as SwiftScraperError) = change.newValue {
+                if case StepRunnerState.failure(let error as SwiftScraperError) = newValue {
                     if case SwiftScraperError.javascriptError(let errorMessage) = error {
                         XCTAssertEqual(errorMessage, "JavaScript exception thrown")
                     } else {
