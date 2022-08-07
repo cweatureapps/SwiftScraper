@@ -1,6 +1,0 @@
-framework module Pods_SwiftScraper {
-  umbrella header "Pods-SwiftScraper-umbrella.h"
-
-  export *
-  module * { export * }
-}

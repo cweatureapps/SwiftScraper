@@ -8,6 +8,7 @@
 
 import Foundation
 import Observable
+import UIKit
 
 // MARK: - StepRunnerState
 
@@ -61,7 +62,7 @@ public class StepRunner {
 
     /// Initializer to create the `StepRunner`.
     ///
-    /// - parameter moduleName: The name of the JavaScript module which has your customer functions. 
+    /// - parameter moduleName: The name of the JavaScript module which has your customer functions.
     ///   By convention, the filename of the JavaScript file is the same as the module name.
     /// - parameter scriptBundle: The bundle from which to load the JavaScript file. Defaults to the main bundle.
     /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+).
@@ -76,7 +77,7 @@ public class StepRunner {
     }
 
     /// Execute the steps.
-    public func run() {        
+    public func run() {
         guard index < steps.count else {
             state ^= .failure(error: SwiftScraperError.incorrectStep)
             return
