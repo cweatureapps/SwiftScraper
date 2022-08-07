@@ -81,9 +81,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         webView = WKWebView(frame: CGRect.zero, configuration: config)
         webView.navigationDelegate = self
         webView.allowsBackForwardNavigationGestures = true
-        if #available(iOS 9.0, *) {
-            webView.customUserAgent = customUserAgent
-        }
+        webView.customUserAgent = customUserAgent
     }
 
     /// Returns the resource bundle for this Pod where all the resources are kept, 
@@ -147,17 +145,10 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     func insertIntoView(parent: UIView) {
         parent.insertSubview(webView, at: 0)
         webView.translatesAutoresizingMaskIntoConstraints = false
-        if #available(iOS 9.0, *) {
-            webView.topAnchor.constraint(equalTo: parent.topAnchor).isActive = true
-            webView.bottomAnchor.constraint(equalTo: parent.bottomAnchor).isActive = true
-            webView.leadingAnchor.constraint(equalTo: parent.leadingAnchor).isActive = true
-            webView.trailingAnchor.constraint(equalTo: parent.trailingAnchor).isActive = true
-        } else {
-            NSLayoutConstraint(item: webView, attribute: .top, relatedBy: .equal, toItem: parent, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
-            NSLayoutConstraint(item: webView, attribute: .bottom, relatedBy: .equal, toItem: parent, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
-            NSLayoutConstraint(item: webView, attribute: .leading, relatedBy: .equal, toItem: parent, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
-            NSLayoutConstraint(item: webView, attribute: .trailing, relatedBy: .equal, toItem: parent, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
-        }
+        webView.topAnchor.constraint(equalTo: parent.topAnchor).isActive = true
+        webView.bottomAnchor.constraint(equalTo: parent.bottomAnchor).isActive = true
+        webView.leadingAnchor.constraint(equalTo: parent.leadingAnchor).isActive = true
+        webView.trailingAnchor.constraint(equalTo: parent.trailingAnchor).isActive = true
     }
 
     /// Loads a page with the given path into the WebView.
