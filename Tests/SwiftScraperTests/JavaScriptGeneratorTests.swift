@@ -6,39 +6,51 @@
 //  Copyright © 2017 Ken Ko. All rights reserved.
 //
 
-import XCTest
 @testable import SwiftScraper
+import XCTest
 
 class JavaScriptGeneratorTests: XCTestCase {
-    
+
     func testGenerateScriptNoArg() {
         let script = try? JavaScriptGenerator.generateScript(moduleName: "MyModule", functionName: "doSomething")
         XCTAssertEqual(script, "MyModule.doSomething()")
     }
 
     func testGenerateNullArg() {
-        let script = try? JavaScriptGenerator.generateScript(moduleName: "MyModule", functionName: "doSomething", params: [NSNull()])
+        let script = try? JavaScriptGenerator.generateScript(moduleName: "MyModule",
+                                                             functionName: "doSomething",
+                                                             params: [NSNull()])
         XCTAssertEqual(script, "MyModule.doSomething(null)")
     }
 
     func testGenerateScriptStringArg() {
-        let script = try? JavaScriptGenerator.generateScript(moduleName: "MyModule", functionName: "doSomething", params: ["hello"])
+        let script = try? JavaScriptGenerator.generateScript(moduleName: "MyModule",
+                                                             functionName: "doSomething",
+                                                             params: ["hello"])
         XCTAssertEqual(script, "MyModule.doSomething(\"hello\")")
     }
 
     func testGenerateScriptNumericArg() {
-        let script1 = try? JavaScriptGenerator.generateScript(moduleName: "MyModule", functionName: "doSomething", params: [3])
+        let script1 = try? JavaScriptGenerator.generateScript(moduleName: "MyModule",
+                                                              functionName: "doSomething",
+                                                              params: [3])
         XCTAssertEqual(script1, "MyModule.doSomething(3)")
 
-        let script2 = try? JavaScriptGenerator.generateScript(moduleName: "MyModule", functionName: "doSomething", params: [75.26])
+        let script2 = try? JavaScriptGenerator.generateScript(moduleName: "MyModule",
+                                                              functionName: "doSomething",
+                                                              params: [75.26])
         XCTAssertEqual(script2, "MyModule.doSomething(75.26)")
     }
 
     func testGenerateScriptArrayArg() {
-        let script1 = try? JavaScriptGenerator.generateScript(moduleName: "MyModule", functionName: "doSomething", params: [[1,2,3]])
+        let script1 = try? JavaScriptGenerator.generateScript(moduleName: "MyModule",
+                                                              functionName: "doSomething",
+                                                              params: [[1, 2, 3]])
         XCTAssertEqual(script1, "MyModule.doSomething([1,2,3])")
 
-        let script2 = try? JavaScriptGenerator.generateScript(moduleName: "MyModule", functionName: "doSomething", params: [["a", "b"]])
+        let script2 = try? JavaScriptGenerator.generateScript(moduleName: "MyModule",
+                                                              functionName: "doSomething",
+                                                              params: [["a", "b"]])
         XCTAssertEqual(script2, "MyModule.doSomething([\"a\",\"b\"])")
     }
 
@@ -56,18 +68,20 @@ class JavaScriptGeneratorTests: XCTestCase {
         XCTAssertEqual(script2, "MyModule.doSomething(\"lorem\",null,{\"message\":\"foo\"})")
     }
 
-    func testGenerateScriptJSONArg() {
+    func testGenerateScriptJSONArg() throws {
         let json: JSON = [
             "someString": "lorem ipsum",
             "someInt": 3,
             "someDouble": 5.6,
             "someBool": true,
-            "someArray": [1,2,3],
+            "someArray": [1, 2, 3],
             "someObject": [
                 "message": "hello world!"
             ]
         ]
-        let script = try! JavaScriptGenerator.generateScript(moduleName: "MyModule", functionName: "doSomething", params: [json])
+        let script = try JavaScriptGenerator.generateScript(moduleName: "MyModule",
+                                                            functionName: "doSomething",
+                                                            params: [json])
         XCTAssertTrue(script.hasPrefix("MyModule.doSomething("))
         XCTAssertTrue(script.hasSuffix(")"))
 
@@ -75,14 +89,14 @@ class JavaScriptGeneratorTests: XCTestCase {
         let paramString = script.replacingOccurrences(of: "MyModule.doSomething(", with: "")
                             .replacingOccurrences(of: ")", with: "")
         let jsonData = paramString.data(using: String.Encoding.utf8)!
-        let jsonObject = try! JSONSerialization.jsonObject(with: jsonData, options: .allowFragments) as! JSON
-        XCTAssertEqual(jsonObject["someString"] as! String, "lorem ipsum")
-        XCTAssertEqual(jsonObject["someInt"] as! Int, 3)
-        XCTAssertEqual(jsonObject["someDouble"] as! Double, 5.6)
-        XCTAssertEqual(jsonObject["someBool"] as! Bool, true)
-        XCTAssertEqual(jsonObject["someArray"] as! [Int], [1,2,3])
+        let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: .allowFragments) as? JSON
+        XCTAssertEqual(jsonObject?["someString"] as? String, "lorem ipsum")
+        XCTAssertEqual(jsonObject?["someInt"] as? Int, 3)
+        XCTAssertEqual(jsonObject?["someDouble"] as? Double, 5.6)
+        XCTAssert(jsonObject?["someBool"] as? Bool == true)
+        XCTAssertEqual(jsonObject?["someArray"] as? [Int], [1, 2, 3])
 
-        let innerObject = jsonObject["someObject"] as! JSON
-        XCTAssertEqual(innerObject["message"] as! String, "hello world!")
+        let innerObject = jsonObject?["someObject"] as? JSON
+        XCTAssertEqual(innerObject?["message"] as? String, "hello world!")
     }
 }

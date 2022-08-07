@@ -19,26 +19,35 @@ public class AsyncScriptStep: ScriptStep {
 
     /// Initializer.
     ///
-    /// - parameter functionName: The name of the JavaScript function to call. The module namespace is automatically added.
+    /// - parameter functionName: The name of the JavaScript function to call. The module namespace is automatically
+    ///   added.
     /// - parameter params: Parameters which will be passed to the JavaScript function.
     /// - parameter paramsKeys: Look up the values from the JSON model dictionary using these keys,
     ///   and pass them as the parameters to the JavaScript function. If provided, these are used instead of `params`.
-    /// - parameter handler: Callback function which returns data from JavaScript, and passes the model JSON dictionary for modification.
+    /// - parameter handler: Callback function which returns data from JavaScript, and passes the model JSON dictionary
+    ///   for modification.
     override public init(
         functionName: String,
         params: Any...,
         paramsKeys: [String] = [],
-        handler: @escaping ScriptStepHandler) {
+        handler: @escaping ScriptStepHandler
+    ) {
+        // Can't pass params to super:
+        // e.g. if params is ['a', 3], then the single array with 2 elems would get passed to super.init
         super.init(
             functionName: functionName,
-            params: [],         // Can't pass to super here. e.g. if params is ['a', 3], then the single array with 2 elems would get passed to super.init
+            params: [],
             paramsKeys: paramsKeys,
             handler: handler)
         super.params = params   // set the params here
     }
 
-    override func runScript(browser: Browser, functionName: String, params: [Any], completion: @escaping ScriptResponseResultCallback) {
+    override func runScript(
+        browser: Browser,
+        functionName: String,
+        params: [Any],
+        completion: @escaping ScriptResponseResultCallback
+    ) {
         browser.runAsyncScript(functionName: functionName, params: params, completion: completion)
     }
 }
-

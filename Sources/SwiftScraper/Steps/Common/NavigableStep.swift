@@ -29,7 +29,7 @@ extension NavigableStep {
         }
         browser.runScript(functionName: assertionName) { result in
             switch result {
-            case .success(let ok as Bool) where ok:
+            case .success(let isOk as Bool) where isOk:
                 completion(.proceed(model))
             default:
                 completion(.failure(SwiftScraperError.contentUnexpected, model))

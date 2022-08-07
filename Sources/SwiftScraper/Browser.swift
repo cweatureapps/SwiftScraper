@@ -43,7 +43,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     // MARK: - Properties
 
     private let moduleName: String
-    private (set) public var webView: WKWebView!
+    public private (set) var webView: WKWebView!
     private let userContentController = WKUserContentController()
     private var navigationCallback: NavigationCallback?
     private var asyncScriptCallback: ScriptResponseResultCallback?
@@ -52,25 +52,32 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     /// Initialize the Browser object.
     ///
-    /// - parameter moduleName: The name of the JavaScript module. By convention, the filename of the JavaScript file is the same as the module name.
+    /// - parameter moduleName: The name of the JavaScript module. By convention, the filename of the JavaScript file
+    ///   is the same as the module name.
     /// - parameter scriptBundle: The bundle from which to load the JavaScript file. Defaults to the main bundle.
     /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+).
-    init(moduleName: String, scriptBundle: Bundle = Bundle.main, customUserAgent: String? = nil) {
+    init(moduleName: String, scriptBundle: Bundle = Bundle.main, customUserAgent: String? = nil) throws {
         self.moduleName = moduleName
         super.init()
-        setupWebView(moduleName: moduleName, customUserAgent: customUserAgent, scriptBundle: scriptBundle)
+        try setupWebView(moduleName: moduleName, customUserAgent: customUserAgent, scriptBundle: scriptBundle)
     }
 
-    private func setupWebView(moduleName: String, customUserAgent: String?, scriptBundle: Bundle) {
+    private func setupWebView(moduleName: String, customUserAgent: String?, scriptBundle: Bundle) throws {
 
         let coreScriptURL = Bundle.module.path(forResource: Constants.coreScript, ofType: "js")
-        let coreScriptContent = try! String(contentsOfFile: coreScriptURL!)
+        guard let coreScriptContent = try? String(contentsOfFile: coreScriptURL!) else {
+            throw SwiftScraperError.commonScriptNotFound
+        }
         let coreScript = WKUserScript(source: coreScriptContent, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         userContentController.addUserScript(coreScript)
 
         let moduleScriptURL = scriptBundle.path(forResource: moduleName, ofType: "js")
-        let moduleScriptContent = try! String(contentsOfFile: moduleScriptURL!)  // TODO: prevent force try, propagate error
-        let moduleScript = WKUserScript(source: moduleScriptContent, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        guard let moduleScriptContent = try? String(contentsOfFile: moduleScriptURL!) else {
+            throw SwiftScraperError.scriptNotFound(name: moduleName)
+        }
+        let moduleScript = WKUserScript(source: moduleScriptContent,
+                                        injectionTime: .atDocumentEnd,
+                                        forMainFrameOnly: true)
         userContentController.addUserScript(moduleScript)
 
         userContentController.add(self, name: Constants.messageHandlerName)
@@ -87,11 +94,14 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     // MARK: - WKNavigationDelegate
 
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        print("didFinishNavigation was called")
         callNavigationCompletion(result: .success(()))
     }
 
-    public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+    public func webView(
+        _ webView: WKWebView,
+        didFailProvisionalNavigation navigation: WKNavigation!,
+        withError error: Error
+    ) {
         print("didFailProvisionalNavigation")
         let navigationError = SwiftScraperError.navigationFailed(error: error)
         callNavigationCompletion(result: .failure(navigationError))
@@ -108,7 +118,9 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     }
 
     private func callNavigationCompletion(result: NavigationResult) {
-        guard let navigationCompletion = self.navigationCallback else { return }
+        guard let navigationCompletion = self.navigationCallback else {
+            return
+        }
         // Make a local copy of closure before setting to nil, to due async nature of this,
         // there is a timing issue if simply setting to nil after calling the completion.
         // This is because the completion is the code that triggers the next step.
@@ -118,7 +130,10 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     // MARK: - WKScriptMessageHandler
 
-    public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+    public func userContentController(
+        _ userContentController: WKUserContentController,
+        didReceive message: WKScriptMessage
+    ) {
         print("WKScriptMessage didReceiveMessage")
         guard message.name == Constants.messageHandlerName else {
             print("Ignoring message with name of \(message.name)")
@@ -152,7 +167,9 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
 
     /// Run some JavaScript with error handling and logging.
     func runScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCallback) {
-        guard let script = try? JavaScriptGenerator.generateScript(moduleName: moduleName, functionName: functionName, params: params) else {
+        guard let script = try? JavaScriptGenerator.generateScript(moduleName: moduleName,
+                                                                   functionName: functionName,
+                                                                   params: params) else {
             completion(.failure(SwiftScraperError.parameterSerialization))
             return
         }
@@ -161,7 +178,8 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
             if let nsError = error as NSError?,
                 nsError.domain == WKError.errorDomain,
                 nsError.code == WKError.Code.javaScriptExceptionOccurred.rawValue {
-                let jsErrorMessage = nsError.userInfo["WKJavaScriptExceptionMessage"] as? String ?? nsError.localizedDescription
+                let jsErrorMessage = nsError.userInfo["WKJavaScriptExceptionMessage"] as? String
+                                        ?? nsError.localizedDescription
                 print("javaScriptExceptionOccurred error: \(jsErrorMessage)")
                 completion(.failure(SwiftScraperError.javascriptError(errorMessage: jsErrorMessage)))
             } else if let error = error {
@@ -186,7 +204,7 @@ public class Browser: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         }
     }
 
-    /// Run some JavaScript asynchronously, the completion being called when a script message is received from the JavaScript.
+    /// Run JavaScript asynchronously - the completion is called when a script message is received back from JavaScript
     func runAsyncScript(functionName: String, params: [Any] = [], completion: @escaping ScriptResponseResultCallback) {
         self.asyncScriptCallback = completion
         runScript(functionName: functionName, params: params) { result in

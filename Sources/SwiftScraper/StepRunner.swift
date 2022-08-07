@@ -15,8 +15,10 @@ import AppKit
 #endif
 
 #if canImport(UIKit)
+/// Platform depended implementation of view
 public typealias PlatformView = UIView
 #else
+/// Platform depended implementation of view
 public typealias PlatformView = NSView
 #endif
 
@@ -26,7 +28,7 @@ public typealias JSON = [String: Any]
 // MARK: - StepRunnerState
 
 /// Indicates the progress and status of the `StepRunner`.
-public enum StepRunnerState {
+public enum StepRunnerState: Equatable {
     /// Not yet started, `run()` has not been called.
     case notStarted
 
@@ -40,19 +42,25 @@ public enum StepRunnerState {
     case failure(error: Error)
 }
 
+/// Checks equality of the runner state, including index of currently running step
 public func == (lhs: StepRunnerState, rhs: StepRunnerState) -> Bool {
     switch (lhs, rhs) {
-    case (.notStarted, .notStarted): return true
-    case (.success, .success): return true
-    case (.failure, .failure): return true
-    case (.inProgress(let lhsIndex), .inProgress(let rhsIndex)):
+    case (.notStarted, .notStarted):
+        return true
+    case (.success, .success):
+        return true
+    case (.failure, .failure):
+        return true
+    case let (.inProgress(lhsIndex), .inProgress(rhsIndex)):
         return lhsIndex == rhsIndex
-    default: return false
+    default:
+        return false
     }
 }
 
+/// Checks inequality of the runner state, including index of currently running step
 public func != (lhs: StepRunnerState, rhs: StepRunnerState) -> Bool {
-    return !(lhs == rhs)
+    !(lhs == rhs)
 }
 
 // MARK: - StepRunner
@@ -80,12 +88,13 @@ public class StepRunner {
     /// - parameter scriptBundle: The bundle from which to load the JavaScript file. Defaults to the main bundle.
     /// - parameter customUserAgent: The custom user agent string (only works for iOS 9+).
     /// - parameter steps: The steps to run in the pipeline.
-    public init(
+    public init( // swiftlint:disable:this function_default_parameter_at_end
         moduleName: String,
         scriptBundle: Bundle = Bundle.main,
         customUserAgent: String? = nil,
-        steps: [Step]) {
-        browser = Browser(moduleName: moduleName, scriptBundle: scriptBundle, customUserAgent: customUserAgent)
+        steps: [Step]
+    ) throws {
+        browser = try Browser(moduleName: moduleName, scriptBundle: scriptBundle, customUserAgent: customUserAgent)
         self.steps = steps
     }
 
@@ -98,7 +107,9 @@ public class StepRunner {
         let stepToExecute = steps[index]
         state ^= .inProgress(index: index)
         stepToExecute.run(with: browser, model: model) { [weak self] result in
-            guard let this = self else { return }
+            guard let this = self else {
+                return
+            }
             this.model = result.model
             switch result {
             case .finish:
@@ -129,7 +140,8 @@ public class StepRunner {
         run()
     }
 
-    /// Insert the WebView used for scraping at index 0 of the given parent view, using AutoLayout to pin all 4 sides to the parent.
+    /// Insert the WebView used for scraping at index 0 of the given parent view, using AutoLayout to pin all 4 sides
+    /// of the parent.
     ///
     /// Useful if the app would like to see the scraping in the foreground.
     public func insertWebViewIntoView(parent: PlatformView) {

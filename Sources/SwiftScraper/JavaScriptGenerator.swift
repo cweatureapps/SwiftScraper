@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct JavaScriptGenerator {
+enum JavaScriptGenerator {
 
     static func generateScript(moduleName: String, functionName: String, params: [Any] = []) throws -> String {
         guard !params.isEmpty else {
@@ -21,18 +21,17 @@ struct JavaScriptGenerator {
     }
 
     private static func stringify(param: Any) throws -> String {
-        if let s = param as? String {
-            return "\"\(s)\""
-        } else if let b = param as? Bool {
-            return b ? "true" : "false"
+        if let string = param as? String {
+            return "\"\(string)\""
+        } else if let bool = param as? Bool {
+            return bool ? "true" : "false"
         } else if param is Int || param is Double {
             return "\(param)"
         } else if param is NSNull {
             return "null"
         } else if JSONSerialization.isValidJSONObject(param),
-            let prettyJsonData = try? JSONSerialization.data(withJSONObject: param, options: []),
-            let jsonString = NSString(data: prettyJsonData, encoding: String.Encoding.utf8.rawValue) as String? {
-            return jsonString
+            let prettyJsonData = try? JSONSerialization.data(withJSONObject: param, options: []) {
+            return String(decoding: prettyJsonData, as: UTF8.self)
         }
         throw SwiftScraperError.parameterSerialization
     }

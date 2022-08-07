@@ -22,20 +22,37 @@ public enum SwiftScraperError: Error, LocalizedError {
     /// Page navigation failed with the given error.
     case navigationFailed(error: Error)
 
-    /// The step which was specified could not be found to be run, e.g. if an incorrect index was specified for `StepFlowResult.jumpToStep(Int)`.
+    /// The step which was specified could not be found to be run, e.g. if an incorrect index was specified for
+    /// `StepFlowResult.jumpToStep(Int)`.
     case incorrectStep
 
     /// Timeout occurred while waiting for a step to complete.
     case timeout
 
+    /// Something went wrong with loading the common script, which is included in the package
+    case commonScriptNotFound
+
+    /// Something went wrong with loading the testing JavaScript file
+    case scriptNotFound(name: String)
+
     public var errorDescription: String? {
         switch self {
-        case .parameterSerialization: return "Could not serialize the parameters to pass to the script"
-        case .contentUnexpected: return "Something went wrong, the page contents was not what was expected"
-        case .javascriptError(let errorMessage): return "A JavaScript error occurred when trying to process the page: \(errorMessage)"
-        case .navigationFailed: return "Something went wrong when navigating to the page"
-        case .incorrectStep: return "An incorrect step was specified"
-        case .timeout: return "Timeout occurred while waiting for a step to complete"
+        case .parameterSerialization:
+            return "Could not serialize the parameters to pass to the script"
+        case .contentUnexpected:
+            return "Something went wrong, the page contents was not what was expected"
+        case .javascriptError(let errorMessage):
+            return "A JavaScript error occurred: \(errorMessage)"
+        case .navigationFailed:
+            return "Something went wrong when navigating to the page"
+        case .incorrectStep:
+            return "An incorrect step was specified"
+        case .timeout:
+            return "Timeout occurred while waiting for a step to complete"
+        case .commonScriptNotFound:
+            return "Could not load SwiftScraper.js"
+        case .scriptNotFound(let name):
+            return "Could not load \(name)"
         }
     }
 }

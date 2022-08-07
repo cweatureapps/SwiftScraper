@@ -39,19 +39,26 @@ public class WaitForConditionStep: Step {
         self.browser = browser
         self.model = model
         self.completion = completion
-        timer = Timer.scheduledTimer(timeInterval: Constants.refreshInterval, target: self, selector: #selector(handleTimer), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: Constants.refreshInterval,
+                                     target: self,
+                                     selector: #selector(handleTimer),
+                                     userInfo: nil,
+                                     repeats: true)
     }
 
-    @objc func handleTimer() {
+    @objc
+    func handleTimer() {
         guard let startRunDate = startRunDate,
             let browser = browser,
             let model = model,
             let completion = completion else { return }
         browser.runScript(functionName: assertionName) { [weak self] result in
-            guard let this = self else { return }
+            guard let this = self else {
+                return
+            }
             switch result {
-            case .success(let ok):
-                if ok as? Bool ?? false {
+            case .success(let isOk):
+                if isOk as? Bool ?? false {
                     this.reset()
                     completion(.proceed(model))
                 } else {

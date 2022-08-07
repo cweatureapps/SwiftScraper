@@ -12,6 +12,7 @@ import Foundation
 /// when a step's `run` method is complete.
 /// This also contains the model which is passed betweeen the steps.
 public enum StepCompletionResult {
+
     /// Proceed to the next step.
     case proceed(JSON)
 
@@ -27,10 +28,14 @@ public enum StepCompletionResult {
     /// The associated JSON model for the result.
     var model: JSON {
         switch self {
-        case .proceed(let model): return model
-        case .finish(let model): return model
-        case .jumpToStep(_, let model): return model
-        case .failure(_, let model): return model
+        case .proceed(let model):
+            return model
+        case .finish(let model):
+            return model
+        case .jumpToStep(_, let model):
+            return model
+        case .failure(_, let model):
+            return model
         }
     }
 }

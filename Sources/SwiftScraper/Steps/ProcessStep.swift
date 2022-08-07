@@ -17,7 +17,6 @@ import Foundation
 /// - returns: The `StepFlowResult` which allows control flow of the steps.
 public typealias ProcessStepHandler = (_ model: inout JSON) -> StepFlowResult
 
-
 // MARK: - ProcessStep
 
 /// Step that performs some processing, can update the model dictionary, 
@@ -39,4 +38,3 @@ public class ProcessStep: Step {
         completion(result.convertToStepCompletionResult(with: modelCopy))
     }
 }
-

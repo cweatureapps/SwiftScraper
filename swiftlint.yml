@@ -1,0 +1,109 @@
+# Updated for 0.47.1
+
+excluded:
+  - ".build"
+
+opt_in_rules:
+  - attributes
+  - closure_end_indentation
+  - closure_spacing
+  - conditional_returns_on_newline
+  - empty_count
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - implicit_return
+  - let_var_whitespace
+  - multiline_parameters
+  - nimble_operator
+  - no_extension_access_modifier
+  - number_separator
+  - object_literal
+  - operator_usage_whitespace
+  - overridden_super_call
+  - private_outlet
+  - prohibited_super_call
+  - redundant_nil_coalescing
+  - sorted_imports
+  - switch_case_on_newline
+  - vertical_parameter_alignment_on_call
+  - unneeded_parentheses_in_closure_argument
+  - trailing_closure
+  - joined_default_parameter
+  - single_test_class
+  - pattern_matching_keywords
+  - contains_over_first_not_nil
+  - array_init
+  - multiline_arguments
+  - literal_expression_end_indentation
+  - strict_fileprivate
+  - sorted_first_last
+  - override_in_extension
+  - private_action
+  - yoda_condition
+  - discouraged_optional_boolean
+  - empty_string
+  - untyped_error_in_catch
+  - discouraged_optional_collection
+  - fallthrough
+  - modifier_order
+  - unavailable_function
+  - multiline_function_chains
+  - redundant_set_access_control
+  - empty_xctest_method
+  - function_default_parameter_at_end
+  - file_name
+  - convenience_type
+  - missing_docs
+  - unused_import
+  - legacy_random
+  - closure_body_length
+  - toggle_bool
+  - identical_operands
+  - collection_alignment
+  - multiline_literal_brackets
+  - multiline_parameters_brackets
+  - xct_specific_matcher
+  - last_where
+  - strong_iboutlet
+  - reduce_into
+  - file_types_order
+  - type_contents_order
+  - nslocalizedstring_require_bundle
+  - unowned_variable_capture
+  - legacy_multiple
+  - unused_declaration
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - empty_collection_literal
+  - contains_over_range_nil_comparison
+  - flatmap_over_map_reduce
+  - raw_value_for_camel_cased_codable_enum
+  - enum_case_associated_values_count
+  - optional_enum_case_matching
+  - prefer_self_type_over_type_of_self
+  - orphaned_doc_comment
+  - prefer_zero_over_explicit_init
+  - test_case_accessibility
+  - discouraged_assert
+  - legacy_objc_type
+  - capture_variable
+  - private_subject
+  - discouraged_none_name
+  - redundant_type_annotation
+  - prefer_self_in_static_references
+  - weak_delegate
+  - return_value_from_void_function
+  - accessibility_label_for_image
+
+disabled_rules:
+  - trailing_comma
+
+line_length: 175
+function_body_length: 30
+identifier_name:
+  max_length:
+    warning: 45
+type_name:
+  max_length:
+    warning: 45
