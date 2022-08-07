@@ -1,0 +1,48 @@
+- name: feature
+  description: New feature
+  color: 0e8a16
+- name: enhancement
+  description: Improvement to an existing feature
+  color: 0075ca
+- name: bug
+  description: Something isn't working
+  color: d73a4a
+- name: documentation
+  description: Improvements or additions to documentation
+  color: FEF2C0
+- name: dependencies
+  description: Update of dependencies
+  color: c5def5
+- name: refactoring
+  description: Code refactoring
+  color: c2e0c6
+- name: tests
+  description: Improvements to automated tests
+  color: fbca04
+- name: maintenance
+  description: Internal, non-code related changes
+  color: 006b75
+- name: sync
+  description: Automated synchronization of common files
+  color: d4c5f9
+- name: blocked
+  description: This item can currently not be worked on
+  color: e99695
+- name: question
+  description: Further information or discussion is required
+  color: d876e3
+- name: duplicate
+  description: This issue or pull request already exists
+  color: cfd3d7
+- name: wontfix
+  description: This will not be worked on
+  color: ffffff
+- name: major
+  description: This change should bump the major version of the next release
+  color: eeeeee
+- name: minor
+  description: This change should bump the minor version of the next release
+  color: eeeeee
+- name: skip-changelog
+  description: Hide this change in the change log
+  color: ffffff

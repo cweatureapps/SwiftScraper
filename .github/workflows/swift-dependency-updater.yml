@@ -1,0 +1,39 @@
+name: Swift Dependency Updater
+
+on:
+  schedule:
+    - cron:  '17 10 * * 5' # Run every Friday at 10:17 UTC
+  workflow_dispatch: # Allows to manually trigger the script
+
+permissions: # The workflow does not need speific permissions as we use a different token
+  contents: read
+
+jobs:
+  test:
+    name: Update Swift Dependencies
+    runs-on: ubuntu-latest # The action supports macOS-latest as well
+    steps:
+    - name: Generate token
+      id: generate_token
+      uses: tibdex/github-app-token@v1.6.0
+      with:
+        app_id: ${{ secrets.APP_ID }} # These two secrets need to be added
+        private_key: ${{ secrets.APP_PRIVATE_KEY }} # to your repository settings
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        path: repo
+        fetch-depth: 0 # Fetching the whole repo is required to check if branches already exist
+        token: ${{ steps.generate_token.outputs.token }} # Checkout repo pre-configured with right token
+    - name: Install Swift
+      uses: swift-actions/setup-swift@v1.15.0
+    - name: Checkout swift-dependency-updater
+      uses: actions/checkout@v3
+      with:
+        repository: Nef10/swift-dependency-updater
+        path: swift-dependency-updater
+        ref: main # specify a version tag or use main to always use the latest code
+    - name: Run swift-dependency-updater
+      run: cd swift-dependency-updater && swift run swift-dependency-updater github ../repo
+      env:
+        TOKEN: ${{ steps.generate_token.outputs.token }} # Required to open the Pull Requests

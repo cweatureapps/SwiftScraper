@@ -90,6 +90,7 @@ public class StepRunner {
         }
     }
 
+    /// Callbacks which are called on each state change
     public var stateObservers: [(StepRunnerState) -> Void] = []
 
     /// A model dictionary which can be used to pass data from step to step.

@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+    - main
+  push:
+    branches:
+    - main
+
+jobs:
+  get_os:
+    name: Determine supported OS
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Check and output correct matrix
+      id: output_data
+      run: |
+        macos='macOS-latest'
+        if [ -e .github/macos_version.txt ]
+        then
+            macos=$(cat ./.github/macos_version.txt)
+        fi
+        if [ -e .github/macos_only ]
+        then
+            echo "::set-output name=os_matrix::['$macos']"
+            echo "::set-output name=coverage_os::$macos"
+        else
+            echo "::set-output name=os_matrix::['$macos', 'ubuntu-latest']"
+            echo "::set-output name=coverage_os::ubuntu-latest"
+        fi
+    outputs:
+        os_matrix: ${{ steps.output_data.outputs.os_matrix }}
+        coverage_os: ${{ steps.output_data.outputs.coverage_os }}
+
+  test:
+    name: Tests
+    needs: get_os
+    strategy:
+      matrix:
+        os:  ${{fromJson(needs.get_os.outputs.os_matrix)}}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Install Swift
+      uses: swift-actions/setup-swift@v1.15.0
+    - name: Run tests
+      run: swift test --enable-code-coverage -Xswiftc -warnings-as-errors
+    - name: Save PR number
+      if: ${{ matrix.os == needs.get_os.outputs.coverage_os }}
+      run: |
+        mkdir -p ./pr
+        echo ${{ github.event.number }} > ./pr/NR
+    - name: Generate test coverage report
+      if: ${{ matrix.os == needs.get_os.outputs.coverage_os }}
+      uses: maxep/spm-lcov-action@0.3.1
+      with:
+        output-file: ./pr/lcov.info
+    - name: Upload Coverage Information for Comment
+      if: ${{ matrix.os == needs.get_os.outputs.coverage_os }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: pr
+        path: pr/
+    - name: 'Read minimum coverage'
+      if: ${{ matrix.os == needs.get_os.outputs.coverage_os }}
+      run: echo "minimum_coverage=$(cat ./.github/minimum_coverage.txt)" >> $GITHUB_ENV
+    - name: Enforce test coverage threshhold
+      if: ${{ matrix.os == needs.get_os.outputs.coverage_os }}
+      uses: VeryGoodOpenSource/very_good_coverage@v1.2.1
+      with:
+        path: ./pr/lcov.info
+        min_coverage: ${{ env.minimum_coverage }}
+
+  swiftlint:
+    name: SwiftLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run SwiftLint --strict
+        uses: norio-nomura/action-swiftlint@3.2.1
+        with:
+          args: --strict
